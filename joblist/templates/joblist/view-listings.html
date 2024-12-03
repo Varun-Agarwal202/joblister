@@ -1,0 +1,62 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+{% if displayform == False %}
+<h1>List of Job Options</h1>
+<div class = "sort-container">
+<span>Sort By Field: </span> 
+<select id="job-type-dropdown" onchange="sortJobsByType()">
+    <option value="">Select Job Type</option>
+    {% for value, display in jobtypechoices %}
+    <option value="{{ value }}">{{ display }}</option>
+    {% endfor %}
+</select>
+<button style="padding-right: 5px; padding-left: 5px; background: lightblue;" > Sort </button>
+</div>
+{% for job in jobs %}
+<a href= "#" onclick = "managesidebar(' {{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}')" class="text-decoration-none text-reset">
+
+<div class=' px-4 py-4 bg-white job-box' style= "width:300px;">
+    <h3>{{job.job_title}}</h3>
+    <h5>{{job.author}}</h5>
+    <p>{{job.description|truncatewords:20}}</p>
+    <p>{{job.salary}}</p>
+    <p class = "text-muted">{{job.date_posted}}</p>
+</a>
+{% endfor %}
+
+<div class = "sidebar" id = "sidebar">
+    <h2>Job Details</h2>
+    <h4 id = "title-job"></h4>
+    <h5 id = "title-company"></h5>
+    <p id = "title-author"></p>
+    <p id = "job-description">Click on job to view details</p>
+    <p id = "job-salary"></p>
+    <form class = "make-hidden" method = "POST" action = "submit-application/">
+        {% csrf_token %}
+    <button id = 'apply-button' type = "submit" hidden = "hidden"> Apply </button>
+    <input id = "apply" name = "job-id" hidden = "hidden" >
+</form>
+</div>
+
+<script>
+    function managesidebar(title, author, description, salary, company, id) {
+        document.getElementById('title-job').innerText = title;
+        document.getElementById('title-company').innerText = "Company: " + company;
+        document.getElementById('title-author').innerText = "Author: " + author;
+        document.getElementById('job-description').innerText = "Description: " + description;
+        document.getElementById('job-salary').innerText = "Salary: " + salary;
+        document.getElementById('apply-button').removeAttribute("hidden");
+        console.log(id)
+        document.getElementById('apply').setAttribute("value", id);
+    }
+</script>
+{% else %}
+<form method="POST" action="">
+    {% csrf_token %}  
+    {{ form.as_p }}
+    
+    <button type="submit">Submit Application</button>
+</form>
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,26 @@
+{% extends "joblist/base.html" %}
+{%block content %}
+<h1> Welcome To The Website</h1>
+{% if user.is_authenticated %}
+<h2>Welcome, {{user.username}}!</h2>
+<p> You are currently logged in.</p>
+<p><a href = "{% url 'account_logout' %}" >Log Out</a></p>
+<h3>Your role is {{user.role}}!</h3>
+{% if user.role == "Student" %}
+<h1>View Job Listings</h1>
+{% endif %}
+{% else %}
+<h2> You are not logged in </h2>
+<p> Please Log In or Sign Up to Access All Features</p>
+{% endif %}
+<p>Options:</p>
+<ul>
+    {% if not user.is_authenticated %}
+    <li><a href = "{% url 'account_signup' %}"> Sign Up </a></li>
+    <li>   <a href = "{% url 'account_login' %}"> Log In </a></li>
+
+{% endif %}
+<li>  <a href = "{% url 'account_reset_password' %}"> Reset Password </a></li>
+    
+</ul>
+{%endblock content%}

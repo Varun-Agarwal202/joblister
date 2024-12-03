@@ -1,0 +1,48 @@
+body{
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.status_show {
+  background-color: #7f8b49 !important;
+  color: #11ee0e !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  margin-left: 100px !important;
+  margin-top: 5px;
+  text-transform: uppercase !important;
+}
+.job-box {
+    transition: background-color 0.3s ease !important;
+  }
+  .job-box:hover {
+    background-color: #adadad !important;
+  }
+  .sidebar {
+      position: fixed;
+      top: 100px; 
+      right: 0; 
+      width: 800px; 
+      height: calc(100% - 100px);
+      background-color: #f8f9fa; 
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+      border-left: 2px solid #ddd; /* Border to separate sidebar */
+      padding-left: 20px; /* Padding for sidebar content */ 
+      overflow-y: scroll;
+      overflow-x: hidden;
+  }
+  .sort-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px; 
+  }
+
+.sort-container span {
+    margin-right: 10px; 
+}
+
+#job-type-dropdown {
+    padding: 5px;
+    font-size: 16px; 
+}
+
+  

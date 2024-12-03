@@ -1,0 +1,44 @@
+{% extends "joblist/base.html" %}
+{%block content %}
+<h1> Welcome To The Website</h1>
+<h2>Welcome, {{user.username}}!</h2>
+<p> You are currently logged in.</p>
+<p><a href = "{% url 'account_logout' %}" >Log Out</a></p>
+<h3>Your role is {{user.role}}!</h3>
+<h3>View Submitted Applications</h3>
+<div style="white-space: nowrap; overflow-x: auto; width: 100%; padding: 10px; box-sizing: border-box;">
+    {% for app in apps %}
+    <!-- Each application displayed inline -->
+    <div style="display: inline-block; margin-right: 20px; text-align: center;">
+        <h3>{{ app.job.job_title }}</h3>
+        <h1>{{ app.status }}</h1>
+        {% if app.status == "rejected" %}
+        <button onclick = "deleteapp('{{app.id}}')">Delete</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+<p>Options:</p>
+<ul>
+    {% if not user.is_authenticated %}
+    <li><a href = "{% url 'account_signup' %}"> Sign Up </a></li>
+    <li>   <a href = "{% url 'account_login' %}"> Log In </a></li>
+
+{% endif %}
+<li>  <a href = "{% url 'account_reset_password' %}"> Reset Password </a></li>
+    
+</ul>
+<script>
+    function deleteapp(app_id) {
+        fetch(`/deleteApp/${app_id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ crsf_token }}'
+                },
+            body: JSON.stringify({ status: status })
+        } )
+        location.reload()
+    }
+</script>
+{%endblock content%}
