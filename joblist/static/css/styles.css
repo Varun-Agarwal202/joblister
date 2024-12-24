@@ -1,48 +1,278 @@
-body{
+/* General body styling */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+}
+
+/* Navigation bar styling */
+nav {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav .nav-left {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ff6600;
+}
+
+/* Header styling */
+header {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #000080;
+  color: #fff;
+}
+
+header h1 {
+  font-size: 36px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+header h2 {
+  font-size: 24px;
+  margin-top: 10px;
+  font-weight: 300;
+}
+
+/* Main content */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 30px;
+  flex-direction: column;
+}
+
+main h3 {
+  font-size: 24px;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+/* Applications list */
+.application-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  overflow-x: scroll;
+}
+
+.application-box {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  padding: 15px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+}
+
+.application-box span {
+  font-size: 18px;
+  color: #555;
+}
+
+.application-status {
+  font-weight: bold;
+  color: green;
+  text-transform: uppercase;
+}
+
+/* Options styling */
+.options {
+  margin-top: 30px;
+}
+
+.options a {
+  color: #000080;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.options a:hover {
+  color: #ff6600;
+}
+
+/* Footer styling */
+footer {
+  margin-top: 40px;
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  text-align: center;
+}
+/* General body styling */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
   overflow-x: hidden;
   overflow-y: scroll;
 }
+
+/* Header styling */
+header {
+  background-color: #000080;
+  color: #ffffff;
+  padding: 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: #000080;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #ff6600;
+}
+
+/* Main content */
+main {
+  padding: 20px;
+  margin: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Status box styling */
 .status_show {
-  background-color: #7f8b49 !important;
-  color: #11ee0e !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
   font-size: 20px !important;
   font-weight: bold !important;
   margin-left: 100px !important;
   margin-top: 5px;
   text-transform: uppercase !important;
 }
+
+/* Job box styling */
 .job-box {
-    transition: background-color 0.3s ease !important;
-  }
-  .job-box:hover {
-    background-color: #adadad !important;
-  }
-  .sidebar {
-      position: fixed;
-      top: 100px; 
-      right: 0; 
-      width: 800px; 
-      height: calc(100% - 100px);
-      background-color: #f8f9fa; 
-      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-      border-left: 2px solid #ddd; /* Border to separate sidebar */
-      padding-left: 20px; /* Padding for sidebar content */ 
-      overflow-y: scroll;
-      overflow-x: hidden;
-  }
-  .sort-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px; 
-  }
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.job-box:hover {
+  background-color: #000080;
+  color: #ffffff;
+}
+
+/* Sidebar styling */
+.sidebar {
+  position: fixed;
+  top: 100px;
+  right: 0;
+  width: 800px;
+  height: calc(100% - 100px);
+  background-color: #ffffff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  border-left: 2px solid #ddd;
+  padding-left: 20px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 1000;
+}
+
+/* Dropdown styling */
+.sort-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
 .sort-container span {
-    margin-right: 10px; 
+  margin-right: 10px;
+  font-size: 16px;
+  color: #555;
 }
 
 #job-type-dropdown {
-    padding: 5px;
-    font-size: 16px; 
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-  
+/* Buttons */
+button {
+  background-color: #000080;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #ff6600;
+}
+
+/* Application container */
+.app-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+}
+
+.app-container div {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  width: 200px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sidebar {
+      width: 100%;
+      height: auto;
+      position: static;
+      border-left: none;
+      box-shadow: none;
+  }
+
+  .job-box {
+      margin-bottom: 10px;
+  }
+
+  .app-container {
+      flex-direction: column;
+  }
+}

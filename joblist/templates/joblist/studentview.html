@@ -6,19 +6,19 @@
 <p><a href = "{% url 'account_logout' %}" >Log Out</a></p>
 <h3>Your role is {{user.role}}!</h3>
 <h3>View Submitted Applications</h3>
-<div style="white-space: nowrap; overflow-x: auto; width: 100%; padding: 10px; box-sizing: border-box;">
+<div class="application-container">
     {% for app in apps %}
     <!-- Each application displayed inline -->
-    <div style="display: inline-block; margin-right: 20px; text-align: center;">
+    <div style="display: inline-block; margin-right: 20px; text-align: center;" class="application-box">
         <h3>{{ app.job.job_title }}</h3>
-        <h1>{{ app.status }}</h1>
+        <h1 class="application-status">{{ app.status }}</h1>
         {% if app.status == "rejected" %}
         <button onclick = "deleteapp('{{app.id}}')">Delete</button>
         {% endif %}
     </div>
     {% endfor %}
 </div>
-<p>Options:</p>
+<p class = "options">Options:</p>
 <ul>
     {% if not user.is_authenticated %}
     <li><a href = "{% url 'account_signup' %}"> Sign Up </a></li>
@@ -34,7 +34,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ crsf_token }}'
+                'X-CSRFToken': '{{ csrf_token }}'
                 },
             body: JSON.stringify({ status: status })
         } )
