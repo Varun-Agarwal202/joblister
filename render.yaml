@@ -3,6 +3,7 @@ databases:
     plan: free
     databaseName: jobview
     user: postgres
+    password: yourpassword
 
 services:
   - type: web
