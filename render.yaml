@@ -2,7 +2,7 @@ databases:
   - name: jobviewdb
     plan: free
     databaseName: jobview
-    user: postgres
+    user: joblisteruser
 
 services:
   - type: web
