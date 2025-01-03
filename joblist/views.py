@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import JobForm, Application
+from .forms import JobForm, Application, mentorApply
 from .models import JobListing, JobApply
 from django.contrib import messages
 from django.http import JsonResponse
@@ -9,15 +9,17 @@ job_id_saver = 0
 
 def home(request): 
     user = request.user
+    if user.is_superuser:
+        return render(request, "joblist/home.html", {"admin": True})
     if user.is_authenticated:
         role = user.role
         if role == "Student":
             apps = JobApply.objects.filter(creater = user)
             return render(request, "joblist/studentview.html", {"apps": apps})
         else:
-            return render(request, 'joblist/home.html')
+            return render(request, 'joblist/home.html', {"admin": False})
     else:
-        return render(request, 'joblist/home.html')
+        return render(request, 'joblist/home.html', {"admin": False})
     
 def listings(request):
     jobs = JobListing.objects.all()
@@ -30,6 +32,7 @@ def make_listings(request):
         form = JobForm(request.POST)
         if form.is_valid():
             application = form.save(commit = False)
+            application.status = "pending"
             application.author = request.user
             application.save()
             return redirect('/')
@@ -87,3 +90,14 @@ def updatestatus(request, app_id):
 def deleteapp(request, app_id):
     JobApply.objects.filter(pk = app_id).delete()
     return redirect('/')
+def mentorapply(request):
+     if request.method == "POST":
+        form = mentorApply(request.POST)
+        if form.is_valid():
+            application = form.save(commit = False)
+            application.author = request.user
+            application.status = "pending"
+            application.save()
+            return redirect('/')
+     form = mentorApply()
+     return render(request, "joblist/mentorapply.html", {"form": form})

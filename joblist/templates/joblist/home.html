@@ -1,7 +1,9 @@
 {% extends "joblist/base.html" %}
 {%block content %}
 <h1> Welcome To The Website</h1>
-{% if user.is_authenticated %}
+{% if admin %}
+<h2> You are an admin</h2>
+{% elif user.is_authenticated %}
 <h2>Welcome, {{user.username}}!</h2>
 <p> You are currently logged in.</p>
 <p><a href = "{% url 'account_logout' %}" >Log Out</a></p>
@@ -20,6 +22,7 @@
     <li>   <a href = "{% url 'account_login' %}"> Log In </a></li>
 
 {% endif %}
+<li><a href = "{% url 'account_logout' %}" >Log Out</a></li>
 <li>  <a href = "{% url 'account_reset_password' %}"> Reset Password </a></li>
     
 </ul>

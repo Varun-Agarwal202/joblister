@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 urlpatterns= [
     path('', views.home, name="homepage"),
     path('view-listings/', views.listings, name="view-listings"),
+    path('mentorapply/', views.mentorapply, name="mentor-apply"),
     path('profile/', views.profile, name="view-profile"),
     path('make-listings/', views.make_listings, name="make-listings"),
     path('view-listings/submit-application/', views.submitapp, name="submit-app" ),

@@ -1,6 +1,6 @@
 from django import forms
 from allauth.account.forms import SignupForm
-from .models import JobListing, JobApply
+from .models import JobListing, JobApply, applicationMentor
 
 class CustomSignupForm(SignupForm):
     choices = ( ("Student", "Student"),
@@ -38,8 +38,22 @@ class JobForm(forms.ModelForm):
     class Meta:
         model = JobListing
         fields = ('company_name', 'job_title','description','salary', "jobfield",  )
-
-
+class mentorApply(forms.ModelForm):
+    choices = ( 
+        ("Yes", "Yes"),
+        ("No", "No")
+    )
+    first_name = forms.CharField(max_length=30, label='First Name')
+    last_name = forms.CharField(max_length=30, label='Last Name')
+    finishhighschool = forms.ChoiceField(choices = choices, label = "Did you finish High School?")
+    birthdate = forms.DateField(label = "Date Of Birth")
+    phone = forms.CharField(max_length=30, label='Phone Number')
+    email = forms.CharField(max_length=30, label='Email')
+    address = forms.CharField(max_length=30, label='Address')
+    education_level = forms.CharField(max_length=30, label='Education Level')
+    class Meta:
+        model = applicationMentor
+        fields = ('first_name', 'last_name', 'finishhighschool', 'birthdate', 'phone', 'email', 'address', 'education_level', )
 class Application(forms.ModelForm):
     choices = ( ("male", "male"),
                ("female", "female"),

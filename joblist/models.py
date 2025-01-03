@@ -9,6 +9,29 @@ User = settings.AUTH_USER_MODEL
 
 from django.contrib.auth.models import AbstractUser
 
+
+class applicationMentor(models.Model):
+    first_name = models.TextField()
+    last_name = models.TextField()
+    choices = ( ("Yes", "Yes"),
+               ("No", "No"))
+    finishhighschool = models.CharField(choices = choices, max_length=20)
+    birthdate = models.DateField()
+    phone = models.TextField()              
+    email = models.TextField()
+    address = models.TextField()
+    education_level = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.TextField()
+    def __str__(self):
+        return (self.first_name + self.last_name)
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            try:
+                super().save(*args, **kwargs)
+            except IntegrityError:
+                return False
+        return True
 class CustomUser(AbstractUser):
     choices = ( ("Student", "Student"),
                ("Employer", "Employer"),
@@ -40,6 +63,7 @@ class JobListing(models.Model):
     salary = models.IntegerField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100, default='Unknown Company')
+    status = models.TextField()
     def __str__(self):
         return self.job_title
     
