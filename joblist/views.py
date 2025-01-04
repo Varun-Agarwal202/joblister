@@ -22,7 +22,7 @@ def home(request):
         return render(request, 'joblist/home.html', {"admin": False})
     
 def listings(request):
-    jobs = JobListing.objects.all()
+    jobs = JobListing.objects.filter(status = "approve")
     jobtypechoices = ( ("Arts", "Arts"), ("Business", "Business"), ("Communications", "Communications"), ("Education", "Education"), ("Healthcare", "Healthcare"), ("Hospitality", "Hospitality"), ("Information Technology", "Information Technology"), ("Law Enforcement", "Law Enforcement"), ("Sales and Marketing", "Sales and Marketing"), ("Science", "Science"), ("Transportation", "Transportation"), ("Other", "Other" ))
     return render(request, 'joblist/view-listings.html', {"jobs": jobs, "displayform": False, "jobtypechoices": jobtypechoices})
 def profile(request):
@@ -35,6 +35,7 @@ def make_listings(request):
             application.status = "pending"
             application.author = request.user
             application.save()
+            messages.success(request, "Job listing request pending")
             return redirect('/')
     form = JobForm()
     return render(request, "joblist/make-listings.html", {"form": form})
@@ -97,7 +98,27 @@ def mentorapply(request):
             application = form.save(commit = False)
             application.author = request.user
             application.status = "pending"
+            messages.success(request, "Mentor request pending")
             application.save()
             return redirect('/')
      form = mentorApply()
      return render(request, "joblist/mentorapply.html", {"form": form})
+def approvejob(request):
+    jobs = JobListing.objects.filter(status = "pending")
+    return render(request, "joblist/approvejob.html", {"jobs": jobs})
+def approvementor(request):
+    return render(request, "joblist/approvepending.html")
+def updatejobstatus(request, job_id):
+    if request.method == "POST":
+        try: 
+            data = json.loads(request.body)
+            status = data.get('status')
+            application = JobListing.objects.get(id = job_id)
+            application.status = status
+            application.save()
+            return JsonResponse({'success': True})
+        except JobApply.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Application Not Found'}, )
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, )
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})

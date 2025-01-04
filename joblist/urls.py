@@ -11,4 +11,7 @@ urlpatterns= [
     path('view-applications/', views.view_applications, name="view-applications"),
     path('updateAppStatus/<int:app_id>/', views.updatestatus, name="update-app-status"),
     path('deleteApp/<int:app_id>/', views.deleteapp, name="delete-app-status"),
+    path('approvelistings/', views.approvejob, name="approve-job"),
+    path('approvementor', views.approvementor, name="approve-mentor"),
+    path('updateJobStatus/<int:job_id>/', views.updatejobstatus, name="update-job-status"),
 ]

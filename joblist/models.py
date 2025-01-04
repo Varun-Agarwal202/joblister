@@ -63,6 +63,7 @@ class JobListing(models.Model):
     salary = models.IntegerField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100, default='Unknown Company')
+    location = models.CharField(max_length=100)
     status = models.TextField()
     def __str__(self):
         return self.job_title

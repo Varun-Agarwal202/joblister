@@ -15,7 +15,7 @@ class CustomSignupForm(SignupForm):
         user.last_name = self.cleaned_data['last_name']
         user.save()
         return user
-
+location = forms.CharField(required = True)
 company_name = forms.CharField(required=True)
 job_title = forms.CharField(required = True)
 description = forms.CharField(required = True)
@@ -37,7 +37,7 @@ jobfield = forms.ChoiceField(choices = jobtypechoices, label = "Job Field")
 class JobForm(forms.ModelForm):
     class Meta:
         model = JobListing
-        fields = ('company_name', 'job_title','description','salary', "jobfield",  )
+        fields = ('company_name', 'job_title','description','salary', "jobfield", "location" )
 class mentorApply(forms.ModelForm):
     choices = ( 
         ("Yes", "Yes"),

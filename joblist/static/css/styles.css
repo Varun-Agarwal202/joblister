@@ -181,6 +181,7 @@ main {
   padding: 15px;
   border-radius: 8px;
   transition: background-color 0.3s ease;
+  text-overflow: ellipsis;
   margin-bottom: 15px;
 }
 
@@ -202,6 +203,7 @@ main {
   padding-left: 20px;
   overflow-y: scroll;
   overflow-x: hidden;
+  word-wrap: break-word;
   z-index: 1000;
 }
 
@@ -275,4 +277,141 @@ button:hover {
   .app-container {
       flex-direction: column;
   }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.table-text {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more-info button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.more-info button:hover {
+  background-color: #0056b3;
+}
+.popup-overlay {
+
+  display: none;
+
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.5);
+
+}
+
+.popup {
+
+font-family: Arial, sans-serif;
+
+  position: absolute;
+
+  top: 50%;
+
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  background: #fff;
+
+  padding: 20px;
+
+  border-radius: 8px;
+
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 500px;
+  height: 500px;
+  overflow-y: scroll;
+  white-space: initial;
+  word-wrap: break-word
+
+}
+
+.popup-content {
+
+  text-align: center;
+  white-space: initial;
+
+}
+
+.popup .close {
+
+  position: absolute;
+
+  top: 10px;
+
+  right: 10px;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  color: #333;
+
+}
+
+.popup #emailInput {
+
+  width: 80%;
+
+  padding: 10px;
+
+  margin: 10px 0;
+
+  border: 1px solid #ddd;
+
+  border-radius: 4px;
+
+}
+
+.popup button {
+
+  background-color: #4caf50;
+
+  color: #fff;
+
+  padding: 10px 20px;
+
+  border: none;
+
+  border-radius: 4px;
+
+  cursor: pointer;
+
+  font-size: 16px;
+
 }

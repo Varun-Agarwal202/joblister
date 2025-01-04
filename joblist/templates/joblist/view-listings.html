@@ -14,13 +14,14 @@
 <button style="padding-right: 5px; padding-left: 5px; background: lightblue;" onClick = "sortJobsByType(true)" > Clear </button>
 </div>
 {% for job in jobs %}
-<div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px;" job-type-data = "{{job.jobfield}}">
-<a href= "#" onclick = "managesidebar(' {{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}')" class="text-decoration-none text-reset">
+<div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px; text-overflow: ellipsis;" job-type-data = "{{job.jobfield}}">
+<a href= "#" onclick = "managesidebar('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}')" class="text-decoration-none text-reset">
 
     <h3>{{job.job_title}}</h3>
     <h5>{{job.author}}</h5>
-    <p>{{job.description|truncatewords:20}}</p>
+    <p style = "word-wrap: break-word">{{job.description|truncatechars:80}}</p>
     <p>{{job.salary}}</p>
+
     <p id = "job-type-data">{{job.jobfield}}</p>
     <p class = "text-muted">{{job.date_posted}}</p>
 </a>
@@ -32,6 +33,7 @@
     <h5 id = "title-company"></h5>
     <p id = "title-author"></p>
     <p id = "job-description">Click on job to view details</p>
+    <p id = "job-location"></p>
     <p id = "job-type"></p>
     <p id = "job-salary"></p>
     <form class = "make-hidden" method = "POST" action = "submit-application/">
@@ -42,13 +44,14 @@
 </div>
 
 <script>
-    function managesidebar(title, author, description, salary, company, id, type) {
+    function managesidebar(location, title, author, description, salary, company, id, type) {
         document.getElementById('title-job').innerText = title;
         document.getElementById('title-company').innerText = "Company: " + company;
         document.getElementById('title-author').innerText = "Author: " + author;
         document.getElementById('job-description').innerText = "Description: " + description;
         document.getElementById('job-type').innerText = "Type: " + type;
         document.getElementById('job-salary').innerText = "Salary: " + salary;
+        document.getElementById('job-location').innerText = "Location: " + location;
         document.getElementById('apply-button').removeAttribute("hidden");
         console.log(id)
         document.getElementById('apply').setAttribute("value", id);

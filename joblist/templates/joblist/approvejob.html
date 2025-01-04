@@ -1,0 +1,108 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+<h1> Review Job Listings!</h1>
+
+        <table class = "table">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company Name</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Salary</th>
+                <th>Date Posted</th>
+                <th>Author</th>
+                <th>Job Field</th>
+                <th>More Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr class = "table-body">
+            <td class = "table-text">{{job.job_title}}</td>
+            <td class = "table-text">{{job.company_name}}</td>
+            <td class = "table-text">{{job.description}}</td>
+            <td class = "table-text">{{job.location}}</td>
+            <td class = "table-text">{{job.salary}}</td>
+            <td class = "table-text">{{job.date_posted}}</td>
+            <td class = "table-text">{{job.author}}</td>
+            <td class = "table-text">{{job.jobfield}}</td>
+            <td class = "more-info"><button onclick = "moreinfo('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}', '{{job.date_posted}}')" >More Info</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup">
+        <span class="popup-close" onclick="closePopup()">&times;</span>
+        <div class="popup-content">
+        <h2 id="popup-title"></h2>
+        <p><strong>Company: </strong> </p>
+        <p id="popup-company">hello</p>
+        <p><strong>Description:</strong> </p>
+        <p id="popup-description"></p>
+        <p><strong>Location:</strong></p>
+        <p id="popup-location"></p>
+        <p><strong>Salary:</strong> </p>
+        <p id="popup-salary"></p>
+        <p><strong>Date Posted:</strong> </p>
+        <p id="popup-date-posted"></p>
+        <p><strong>Author:</strong> </p>
+        <p id="popup-author"></p>
+        <p><strong>Job Field:</strong> </p>
+        <p id="popup-jobfield"></p>
+        <p id  = "popup-id" hidden = "hidden"></p>
+        <button class = "popup-approved" onclick = "updateStatus('approve')">Approve</button>
+        <button class = "popup-approved" onclick = "updateStatus('reject')">Reject</button>
+    </div>
+</div>
+</div>
+<script>
+    function moreinfo(location, title, author, description, salary, company, id, jobfield, datePosted) {
+        popupOverlay.style.display = 'block';
+        document.getElementById("popup-title").innerText = title;
+        document.getElementById("popup-company").innerText = company;
+        document.getElementById("popup-description").innerText = description;
+        document.getElementById("popup-location").innerText = location;
+        document.getElementById("popup-salary").innerText = salary;
+        document.getElementById("popup-date-posted").innerText = datePosted;
+        document.getElementById("popup-author").innerText = author;
+        document.getElementById("popup-id").innerText = id;
+        document.getElementById("popup-jobfield").innerText = jobfield;
+    }
+    function closePopup() {
+        popupOverlay.style.display = 'none';
+    }
+    function updateStatus(status) {
+        id = document.getElementById("popup-id").innerText
+        fetch(`/updateJobStatus/${id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+            body: JSON.stringify({ status: status })
+        } )
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Application status updated succesfully')
+            }
+            else {
+                alert('Failed to update application')
+                console.log(data.success)
+            }
+            location.reload()
+        })
+    }
+    window.onclick = function(event) {
+        const popupOverlay = document.getElementById("popupOverlay");
+        if (event.target == popupOverlay) {
+            closePopup();
+        }
+    }
+</script>
+{% endblock content %} 
