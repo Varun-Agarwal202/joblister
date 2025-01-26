@@ -15,7 +15,7 @@
 </div>
 {% for job in jobs %}
 <div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px; text-overflow: ellipsis;" job-type-data = "{{job.jobfield}}">
-<a href= "#" onclick = "managesidebar('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}')" class="text-decoration-none text-reset">
+<a href= "#" onclick = "managesidebar('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}', '{{job.date_posted}}', '{{job.benefits}}', '{{job.job_requirements}}', '{{job.job_type}}', '{{job.company_info}}', '{{job.notes}}')" class="text-decoration-none text-reset">
 
     <h3>{{job.job_title}}</h3>
     <h5>{{job.author}}</h5>
@@ -36,6 +36,13 @@
     <p id = "job-location"></p>
     <p id = "job-type"></p>
     <p id = "job-salary"></p>
+    <p id = "job-jobfield"></p>
+    <p id = "job-jobtype"></p>
+    <p id = "job-jobrequirements"></p>
+    <p id = "job-benefits"></p>
+    <p id = "job-companyinfo"></p>
+    <p id = "job-notes"></p>
+
     <form class = "make-hidden" method = "POST" action = "submit-application/">
         {% csrf_token %}
     <button id = 'apply-button' type = "submit" hidden = "hidden"> Apply </button>
@@ -44,7 +51,7 @@
 </div>
 
 <script>
-    function managesidebar(location, title, author, description, salary, company, id, type) {
+    function managesidebar(location, title, author, description, salary, company, id, type, jobfield, job_type, requirements, benefits, company_info, notes) {
         document.getElementById('title-job').innerText = title;
         document.getElementById('title-company').innerText = "Company: " + company;
         document.getElementById('title-author').innerText = "Author: " + author;
@@ -52,6 +59,12 @@
         document.getElementById('job-type').innerText = "Type: " + type;
         document.getElementById('job-salary').innerText = "Salary: " + salary;
         document.getElementById('job-location').innerText = "Location: " + location;
+        document.getElementById("job-jobfield").innerText = "Job Field: " + jobfield;
+        document.getElementById("job-jobtype").innerText = "Job Type: " + job_type;
+        document.getElementById("job-jobrequirements").innerText = "Job Requirements: " + requirements;
+        document.getElementById("job-benefits").innerText = "Job Benefits: " + benefits;
+        document.getElementById("job-companyinfo").innerText = "Company Information: " + company_info;
+        document.getElementById("job-notes").innerText = "Additional Job Notes: " + notes;
         document.getElementById('apply-button').removeAttribute("hidden");
         console.log(id)
         document.getElementById('apply').setAttribute("value", id);
@@ -77,10 +90,16 @@
     }   
 </script>
 {% else %}
-<form method="POST" action="">
+<form method="POST" action="" enctype="multipart/form-data">
+    <p id="name">Name: {{ user.first_name|add:" "|add:user.last_name }}   </p>
+    <p id="gender">Gender: {{user.gender}}</p>
+    <p id="birthdate">Birthday: {{user.birthday}}</p>
+    <p id="phone">Phone Number: {{user.phone}}</p>
+    <p id="email">Email: {{user.email}}</p>
+    <p id="address">Address: {{user.address}}</p>
     {% csrf_token %}  
     {{ form.as_p }}
-    
+    <input id = "apply" name = "job-id" hidden = "hidden" value = {{job_id}}>
     <button type="submit">Submit Application</button>
 </form>
 {% endif %}

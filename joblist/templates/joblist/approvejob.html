@@ -28,7 +28,7 @@
             <td class = "table-text">{{job.date_posted}}</td>
             <td class = "table-text">{{job.author}}</td>
             <td class = "table-text">{{job.jobfield}}</td>
-            <td class = "more-info"><button onclick = "moreinfo('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}', '{{job.date_posted}}')" >More Info</button>
+            <td class = "more-info"><button onclick = "moreinfo('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}', '{{job.date_posted}}', '{{job.benefits}}', '{{job.job_requirements}}', '{{job.job_type}}', '{{job.company_info}}', '{{job.notes}}')" >More Info</button>
             </td>
         </tr>
         {% endfor %}
@@ -54,6 +54,16 @@
         <p id="popup-author"></p>
         <p><strong>Job Field:</strong> </p>
         <p id="popup-jobfield"></p>
+        <p><strong>Benefits:</strong> </p>
+        <p id="popup-benefits"></p>
+        <p><strong>Job Type:</strong> </p>
+        <p id="popup-jobtype"></p>
+        <p><strong>Job Requirements:</strong> </p>
+        <p id="popup-jobrequirements"></p>
+        <p><strong>Company Information:</strong> </p>
+        <p id="popup-companyinfo"></p>
+        <p><strong>Job Additional Notes:</strong> </p>
+        <p id="popup-notes"></p>
         <p id  = "popup-id" hidden = "hidden"></p>
         <button class = "popup-approved" onclick = "updateStatus('approve')">Approve</button>
         <button class = "popup-approved" onclick = "updateStatus('reject')">Reject</button>
@@ -61,7 +71,7 @@
 </div>
 </div>
 <script>
-    function moreinfo(location, title, author, description, salary, company, id, jobfield, datePosted) {
+    function moreinfo(location, title, author, description, salary, company, id, jobfield, datePosted, benefits, requirements, job_type, company_info, notes) {
         popupOverlay.style.display = 'block';
         document.getElementById("popup-title").innerText = title;
         document.getElementById("popup-company").innerText = company;
@@ -72,6 +82,12 @@
         document.getElementById("popup-author").innerText = author;
         document.getElementById("popup-id").innerText = id;
         document.getElementById("popup-jobfield").innerText = jobfield;
+        document.getElementById("popup-jobtype").innerText = job_type;
+        document.getElementById("popup-jobrequirements").innerText = requirements;
+        document.getElementById("popup-benefits").innerText = benefits;
+        document.getElementById("popup-companyinfo").innerText = company_info;
+        document.getElementById("popup-notes").innerText = notes;
+
     }
     function closePopup() {
         popupOverlay.style.display = 'none';

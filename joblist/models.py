@@ -37,6 +37,18 @@ class CustomUser(AbstractUser):
                ("Employer", "Employer"),
                ("Mentor", "Mentor"))
     role = models.CharField(max_length=20, choices = choices)
+    first_name = models.TextField()
+    last_name = models.TextField()
+    choices = ( ("male", "male"),
+               ("female", "female"),
+               ("prefer not to say", "prefer not to say"))
+    
+    gender = models.CharField(choices=choices, max_length=20)
+    birthday = models.DateField(null=True, blank=True)
+    phone = models.TextField()              
+    email = models.TextField()
+    address = models.TextField()
+    REQUIRED_FIELDS = ["phone","birthday","gender", "email", "address", "first_name", "last_name", "role"]
 class JobListing(models.Model):
     jobtypechoices = ( ("Arts", "Arts"),
                       ("Business", "Business"),
@@ -64,6 +76,11 @@ class JobListing(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100, default='Unknown Company')
     location = models.CharField(max_length=100)
+    benefits = models.TextField(max_length=1000)
+    job_type = models.CharField(choices = (("Part-Time", "Part-Time"), ("Full-Time", "Full-Time"), ("Other", "Other")), max_length=100)
+    job_requirements = models.TextField(max_length=100)
+    company_info = models.TextField(max_length=1000)
+    notes = models.TextField(max_length=1000)
     status = models.TextField()
     def __str__(self):
         return self.job_title
@@ -87,12 +104,14 @@ class JobApply(models.Model):
     address = models.TextField()
     education_level = models.TextField()
     creater = models.ForeignKey(User, on_delete=models.CASCADE)
-    qualifications = models.TextField()
+    previousjobs = models.TextField()
     job = models.ForeignKey(JobListing, on_delete=models.CASCADE, null = True, blank=True) 
+    
+    resume = models.FileField(upload_to='resumes/')
     status = models.CharField(
         max_length=10,
         choices=statuschoices,
         default='pending'
     )
     def __str__(self):
-        return self.qualifications
+        return self.first_name

@@ -1,0 +1,400 @@
+  /* File: styles.css */
+
+  /* General body styling */
+  .signup-page {
+    transform: translate(0, 10%);
+  }
+  .signup {
+    transform: translate(0, 150%);
+  }
+  body {
+      font-family: Arial, sans-serif;
+      background-color: #f8fbff; /* Soft blue background */
+      color: #1e3a5f; /* Dark blue for text */
+      margin: 0;
+      padding: 0;
+  }
+
+  /* Page container */
+  .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #ffffff; /* White background for the form */
+      border: 1px solid #dfe8f3; /* Light blue border */
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Headings */
+  h1 {
+      font-size: 1.8rem;
+      color: #162955;
+      text-align: center;
+  }
+
+  /* Paragraphs */
+  p {
+      font-size: 1rem;
+      color: #334e68;
+      margin-bottom: 15px;
+      text-align: center;
+  }
+
+  /* Links */
+  a {
+      color: #1d72b8;
+      text-decoration: none;
+      font-weight: bold;
+  }
+
+  a:hover {
+      color: #155a8a;
+      text-decoration: underline;
+  }
+
+  /* Form styling */
+  form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+      padding: 10px;
+      border: 1px solid #dfe8f3;
+      border-radius: 4px;
+      font-size: 1rem;
+      background-color: #f0f5fa;
+      color: #1e3a5f;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+      border-color: #1d72b8;
+      outline: none;
+      box-shadow: 0 0 4px rgba(29, 114, 184, 0.3);
+  }
+
+  input {
+      width: 25%;
+  }
+  * { box-sizing: border-box; ;
+  }
+  .header-container {
+    transform: translate(0, 70%);
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    padding: 20px; /* Add padding to ensure it stays within the visible area */
+    margin-top: 20px; /* Add margin to ensure it stays within the visible area */
+  }
+
+  .header-container h1 {
+    margin-right: 10px; /* Add some space between the h1 and the img */
+  }
+
+  .header-container .logo {
+    width: 32px;
+    height: 32px;
+  }
+  .login_wrap {
+    position: relative;
+    margin: 0 auto;
+    background: #ecf0f1;
+    width: 550px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 10px #333;
+    padding: 15px;
+    height: 500px;
+    overflow-y: scroll;
+    transform: translate(0, 15%);
+
+  }
+  /* Buttons */
+  button {
+      padding: 10px 15px;
+      background-color: #1d72b8;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+      width: 25%
+      
+  }
+  .p_reset  a {
+    display: block;
+
+    margin-top: 20px;
+    
+  }
+  #id_remember {
+    margin-left: -30px;
+  }
+
+  button:hover {
+      background-color: #155a8a;
+  }
+
+  /* Secondary button (outlined) */
+  button.outline {
+      background-color: #ffffff;
+      color: #1d72b8;
+      border: 1px solid #1d72b8;
+  }
+
+  button.outline:hover {
+      background-color: #f0f5fa;
+  }
+
+  /* Horizontal line */
+  hr {
+      border: 0;
+      border-top: 1px solid #dfe8f3;
+      margin: 20px 0;
+  }
+
+  /* Button group */
+  button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  /* Additional responsive styles */
+  @media (max-width: 768px) {
+      .container {
+          margin: 20px;
+          padding: 15px;
+      }
+  }
+  .navbar-custom {
+      background-color: #1E3A8A; /* Dark blue */
+      position: fixed;
+      top: 0; /* Ensure navbar is at the top */
+      left: 0;
+      right: 0;
+      padding: 1rem 1.5rem; /* Increased padding for a larger navbar */
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000; /* Ensure navbar stays on top */
+      height: 100px; /* Increased navbar height */
+    }
+    .navbar-custom .navbar-brand {
+      color: #FFFFFF;
+      font-size: 2.5rem; /* Larger font size for the brand */
+      font-weight: bold;
+      margin: 0;
+    }
+    .navbar-custom .nav-link {
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 0.5rem;
+    }
+    .navbar-custom .nav-link:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: #3B82F6; /* Light dark blue underline */
+    }
+    .btn-get-started {
+      color: #FFFFFF;
+      background-color: #4F46E5; /* Bright blue */
+      border: none;
+      padding: 0.5rem 1rem;
+      transition: transform 0.2s ease-in-out; /* Hover effect */
+    }
+    .btn-get-started:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: #3B82F6; /* Light dark blue underline */
+      transform: scale(1.05); /* Button grows slightly on hover */
+    }
+    
+    /* Footer Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #ffffff;
+      color: #333333;
+      line-height: 1.6;
+    }
+    
+    /* Navigation bar styling */
+    nav {
+      background-color: #0058b0;
+      color: #ffffff;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    nav .pathfinder {
+      font-size: 18px;
+      font-weight: bold;
+      margin-right: 20px;
+      transition: transform 0.2s ease, font-size 0.2s ease;
+    }
+    
+    nav .pathfinder:hover {
+      transform: scale(1.1);
+    }
+    
+    nav .view-listings {
+      font-size: 16px;
+      color: #ffffff;
+      text-decoration: none;
+    }
+    
+    nav .view-listings:hover {
+      text-decoration: underline;
+    }
+    
+    /* Header styling */
+    header {
+      text-align: center;
+      padding: 50px 20px;
+      background-color: #f5f5f5;
+      color: #0058b0;
+      margin-top: 80px;
+    }
+    
+    header h1 {
+      font-size: 36px;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    
+    header h2 {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #555555;
+    }
+    
+    /* Main content */
+    main {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 8px; 
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Dropdown Menu Styling */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 125px; /* Fixed width for the dropdown */
+      z-index: 11;
+    }
+    
+    .dropdown button {
+      background-color: #0073e6; /* Lighter blue for a modern feel */
+      color: #ffffff;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      width: 100%; /* Ensures the button takes up the full width of the dropdown */
+      box-sizing: border-box; /* To include padding in the button width */
+      transition: background-color 0.3s ease;
+    }
+    
+    .dropdown button:hover {
+      background-color: #005bb5; /* Darker shade for hover */
+    }
+    
+    /* Content of the dropdown */
+    .dropdown .content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #ffffff;
+      min-width: 125px; /* Fixed width for the dropdown content */
+      max-width: 100%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s ease 0.3s;
+      z-index: 1000;
+      text-align: center; /* Center text alignment for all dropdown content */
+    }
+    
+    /* Make the dropdown content appear when hovered */
+    .dropdown:hover .content {
+      display: block;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    /* Styling for dropdown links */
+    .dropdown a {
+      display: block;
+      color: #0073e6; /* Matching link color */
+      text-decoration: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      text-align: center; /* Center the text */
+      border-bottom: 1px solid #f0f0f0;
+      transition: color 0.3s ease, transform 0.2s ease; /* Transition for color and text size */
+    }
+    
+    /* Hover effect for links: text grows and changes color */
+    .dropdown a:hover {
+      color: #005bb5; /* Darker blue on hover */
+      transform: scale(1.1); /* Slightly enlarge text on hover */
+    }
+    
+    .dropdown a:last-child {
+      border-bottom: none; /* Removes border from the last item */
+    }
+    
+    /* Adjust the button for username dropdown */
+    .dropdown .username-dropdown {
+      display: flex;
+      justify-content: center; /* Center items horizontally */
+      align-items: center; /* Center items vertically */
+      width: 100%; /* Fixed width */
+      font-size: 16px;
+      text-align: center;
+      padding: 10px;
+      cursor: pointer;
+    }
+    
+    .dropdown .username-dropdown:hover {
+      background-color: #f0f0f0; /* Subtle hover effect for username */
+      color: #005bb5; /* Darker blue on hover */
+      transform: scale(1.1); /* Slightly enlarge text on hover */
+    }
+    
+    /* Sidebar Styling */
+    .sidebar {
+      width: 60%;
+      background: #f4f4f4;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 120px;
+      overflow-y: auto;
+      z-index: -1;
+    }
+    
