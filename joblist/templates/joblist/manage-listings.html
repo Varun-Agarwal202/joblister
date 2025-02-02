@@ -1,0 +1,36 @@
+{% extends "joblist/base.html" %}
+{% block content %}
+{% if user.is_authenticated %}
+{% if user.role == "Employer" %}
+<h1>Manage Listings</h1>
+{% for job in jobs %}
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">{{ job.job_title }}</h5>
+    <p class="card-text">{{ job.description }}</p>
+    <a onclick = "editlisting('{{job.id}}')" class="btn btn-primary">Edit</a>
+    <a onclick="deleteapp('{{job.id}}')" class="btn btn-danger">Delete</a>
+  </div>
+</div>
+  {% endfor %}
+  {% endif %}
+  {% endif %}
+<script>
+    function deleteapp(app_id) {
+        fetch(`/deleteListing/${app_id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+            body: JSON.stringify({ status: status })
+        } )
+        location.reload()
+    }
+    function editlisting(job_id) {
+        window.location.href = `/make-listings/${job_id}/`;
+
+        } 
+</script>
+</script>
+  {%endblock content%}

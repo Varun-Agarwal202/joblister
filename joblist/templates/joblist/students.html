@@ -1,0 +1,196 @@
+{% extends "joblist/base.html" %}
+{% load static %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        width: 95%;
+        margin: 0 auto;
+        padding: 2rem;
+        display: flex;
+        gap: 2rem;
+    }
+    .section {
+        flex: 1;
+        min-width: 0; /* Prevents flex items from overflowing */
+    }
+    .page-title {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+    .section-header {
+        color: #1a73e8;
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #1a73e8;
+        padding-bottom: 0.5rem;
+    }
+    .student-card {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        border: 1px solid #e1e1e1;
+    }
+    .student-name {
+        color: #1a73e8;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .student-info {
+        margin-bottom: 1.5rem;
+    }
+    .student-info li {
+        margin-bottom: 0.5rem;
+        color: #4a5568;
+    }
+    .student-info strong {
+        color: #2d3748;
+        margin-right: 0.5rem;
+    }
+    .button-container {
+        display: flex;
+        gap: 1rem;
+    }
+    .btn-action {
+        padding: 0.5rem 2rem;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-accept {
+        background-color: #34d399;
+        color: white;
+        border: none;
+    }
+    .btn-accept:hover {
+        background-color: #10b981;
+    }
+    .btn-reject {
+        background-color: #ef4444;
+        color: white;
+        border: none;
+    }
+    .btn-reject:hover {
+        background-color: #dc2626;
+    }
+    .approved-student {
+        background-color: #f8fafc;
+    }
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<h1 class="page-title">Student Management</h1>
+
+<div class="container">
+    <!-- Left Section: Pending Requests -->
+    <div class="section">
+        <h2 class="section-header">Students Requesting</h2>
+        {% for student in requests %}
+        <div class="student-card">
+            <h3 class="student-name">{{ student.first_name }} {{ student.last_name }}</h3>
+            <div class="student-info">
+                <ul class="list-unstyled">
+                    <li><strong>Email:</strong> {{ student.email }}</li>
+                    <li><strong>Phone:</strong> {{ student.phone }}</li>
+                </ul>
+            </div>
+            <div class="button-container">
+                <button type="button" onclick = "acceptStudent('{{ student.id }}')" class="btn-action btn-accept">Accept</button>
+                <button type="button" onclick = "rejectStudent('{{ student.id }}')" class="btn-action btn-reject">Reject</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Right Section: Approved Students -->
+    <div class="section">
+        <h2 class="section-header">Students</h2>
+        {% for student in approved_students %}
+        <div class="student-card approved-student">
+            <h3 class="student-name">{{ student.first_name }} {{ student.last_name }}</h3>
+            <div class="student-info">
+                <ul class="list-unstyled">
+                    <li><strong>Email:</strong> {{ student.email }}</li>
+                    <li><strong>Phone:</strong> {{ student.phone }}</li>
+                    <button type="button" onclick = "warning('{{ student.id }}')" class="btn-action btn-reject">Remove</button>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="modal fade" id="mentorWarningModal" tabindex="-1" aria-labelledby="mentorWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mentorWarningModalLabel">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove this student as your mentor?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='/students'">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="removeStudent()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function acceptStudent(student_id) {
+        console.log(student_id)
+        fetch(`/accept-student/${student_id}/accept`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+        .catch(error => {
+            console.error('Error accepting student:', error)
+        })
+        location.reload()
+    }
+    function rejectStudent(student_id) {
+        console.log(student_id)
+        fetch(`/accept-student/${student_id}/reject`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+        .catch(error => {
+            console.error('Error rejecting student:', error)
+        })
+        location.reload()
+    }
+    function warning(student_id) {
+        console.log(student_id)
+        var mentorWarningModal = new bootstrap.Modal(document.getElementById('mentorWarningModal'));
+        mentorWarningModal.show();
+        student_id_to_remove = student_id
+    
+}
+    function removeStudent() {
+        fetch(`/accept-student/${student_id_to_remove}/reject`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+        .catch(error => {
+            console.error('Error removing student:', error)
+        })
+        location.reload()
+    }
+</script>
+{% endblock %}

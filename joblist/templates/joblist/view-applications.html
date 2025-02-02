@@ -13,7 +13,7 @@
         {% if apps1.status != "rejected" %}
         <h4>{{ apps1.first_name }}</h4>
         {% if apps1.status == "pending" %}
-        <button style="margin-left: 200px;" onclick="viewapp('{{ job.job_title }}', '{{ apps1.first_name }}', '{{ apps1.last_name }}', '{{ apps1.gender }}', '{{ apps1.birthdate }}', '{{ apps1.phone }}', '{{ apps1.email }}', '{{ apps1.address }}', '{{ apps1.education_level }}', '{{apps1.id}}')">View Application</button>
+        <button id = 'viewapp' style="margin-left: 200px;" onclick="viewapp('{{ job.job_title }}', '{{ apps1.first_name }}', '{{ apps1.last_name }}', '{{ apps1.gender }}', '{{ apps1.birthdate }}', '{{ apps1.phone }}', '{{ apps1.email }}', '{{ apps1.address }}', '{{ apps1.education_level }}', '{{apps1.id}}', '{{apps1.resume}}', '{{apps1.previousjobs}}')">View Application</button>
         {% else %}
         <div><h5 class = "status_show">{{apps1.status}}</h5></div>
         {% endif %}
@@ -26,7 +26,7 @@
 </div>
 {% endfor %}
 
-<div class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar" hidden = "hidden">
     <h2>Application Details</h2>
     <h4 id="title-job"></h4>
     <p id="name"></p>
@@ -35,14 +35,18 @@
     <p id="phone"></p>
     <p id="email"></p>
     <p id="address"></p>
+    <p id = "previousjobs"></p>
     <p id="education_level"></p>
+    <a id = "resume" href = "{{apps1.resume.url}}" download = "{{apps1.resume.name}}"></a>
+    <br>    <br>
+
         <button onclick = "updtateAppStatus('accepted')" id = "accept-button" hidden = "hidden">Accept</button>
         <button onclick = "updtateAppStatus('rejected')" id = "reject-button" hidden = "hidden">Reject</button>
 </div>
 
 <script>
     let currentAppId = null
-    function viewapp(title, first_name, last_name, gender, birthdate, phone, email, address, education_level, appId) {
+    function viewapp(title, first_name, last_name, gender, birthdate, phone, email, address, education_level, appId, resume, previous_jobs) {
         document.getElementById('title-job').innerText = title;
         document.getElementById('name').innerText = "Name: " + first_name + " " + last_name;
         document.getElementById('gender').innerText = "Gender: " + gender;
@@ -51,8 +55,12 @@
         document.getElementById('email').innerText = "Email: " + email;
         document.getElementById('address').innerText = "Address: " + address;
         document.getElementById('education_level').innerText = "Education Level: " + education_level;
+        document.getElementById('previousjobs').innerText = "Previous Jobs Worked: " + previous_jobs;
         document.getElementById("reject-button").removeAttribute("hidden")
         document.getElementById("accept-button").removeAttribute("hidden")
+        document.getElementById("sidebar").removeAttribute("hidden")
+        document.getElementById('resume').setAttribute("href", `/media/${resume}`)
+        document.getElementById('resume').innerText =  "Resume: " + "Download"
         currentAppId = appId
 
     }
@@ -76,6 +84,12 @@
             }
             location.reload()
         })
+    }
+    window.onclick = function(event) {
+        const popupOverlay = document.getElementById("sidebar");
+        if (event.target != popupOverlay && event.target != document.getElementById('viewapp')) {
+            popupOverlay.hidden = 'hidden';
+        }
     }
 </script>
 {% endblock %}
