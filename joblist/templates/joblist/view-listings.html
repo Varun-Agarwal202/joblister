@@ -27,7 +27,7 @@
 </a>
 </div>
 {% endfor %}
-<div class = "sidebar" id = "sidebar">
+<div class = "sidebar" id = "sidebar" hidden = "hidden">
     <h2>Job Details</h2>
     <h4 id = "title-job"></h4>
     <h5 id = "title-company"></h5>
@@ -68,6 +68,7 @@
         document.getElementById('apply-button').removeAttribute("hidden");
         console.log(id)
         document.getElementById('apply').setAttribute("value", id);
+        document.getElementById('sidebar').removeAttribute("hidden");
     }
     function sortJobsByType(clear = false) {
         var type = document.getElementById("job-type-dropdown").value

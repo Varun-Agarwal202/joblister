@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import JobForm, Application, mentorApply
-from .models import JobListing, JobApply, applicationMentor
+from .models import JobListing, JobApply, applicationMentor, CustomUser
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -36,18 +36,36 @@ def listings(request):
     return render(request, 'joblist/view-listings.html', {"jobs": jobs2, "displayform": False, "jobtypechoices": jobtypechoices})
 def profile(request):
     return
-def make_listings(request):
+def make_listings(request, job_id):
+    if job_id == "-1": 
+        form = JobForm()
+    else:
+        job_id = int(job_id)
+        job = get_object_or_404(JobListing, pk=job_id)
+        form = JobForm(instance=job)
     if request.method == "POST":
-        form = JobForm(request.POST)
-        if form.is_valid():
-            application = form.save(commit = False)
-            application.status = "pending"
-            application.author = request.user
-            application.save()
-            messages.success(request, "Job listing request pending")
-            return redirect('/')
-    form = JobForm()
-    return render(request, "joblist/make-listings.html", {"form": form})
+            form = JobForm(request.POST)
+            if form.is_valid():
+                application = form.save(commit = False)
+                application.status = "pending"
+                application.author = request.user
+                application.save()
+                if job_id != "-1":  
+                    JobListing.objects.filter(pk = job_id).delete()
+                messages.success(request, "Job listing request pending")
+                return redirect('/')
+            else:
+                if job_id == "-1": 
+                    form = JobForm()
+                else:
+                    job_id = int(job_id)
+                    job = get_object_or_404(JobListing, pk=job_id)
+                    form = JobForm(instance=job)
+
+    
+    return render(request, "joblist/make-listings.html", {"form": form})    
+
+    
 def submitapp(request):
     if request.method == "POST":
         job_id = request.POST.get('job-id')
@@ -140,13 +158,16 @@ def deleteapp(request, app_id):
 def mentorapply(request):
      if request.method == "POST":
         form = mentorApply(request.POST)
+        print("Hi2")
         if form.is_valid():
+            print("Hi1")
             application = form.save(commit = False)
             application.author = request.user
             application.status = "pending"
             messages.success(request, "Mentor request pending")
             application.save()
             return redirect('/')
+     print("Hi3")
      form = mentorApply()
      return render(request, "joblist/mentorapply.html", {"form": form})
 def approvejob(request):
@@ -183,3 +204,47 @@ def updatementorstatus(request, job_id):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, )
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+def managelistings(request):
+    jobs = JobListing.objects.filter(author = request.user)
+    return render(request, "joblist/manage-listings.html", {"jobs": jobs})
+def deletelisting(request, job_id):
+    JobListing.objects.filter(pk = job_id).delete()
+    return redirect('/')
+def viewmentors(request):
+    mentors = applicationMentor.objects.filter(status = "approve")
+    jobtypechoices = ( ("Arts", "Arts"), ("Business", "Business"), ("Communications", "Communications"), ("Education", "Education"), ("Healthcare", "Healthcare"), ("Hospitality", "Hospitality"), ("Information Technology", "Information Technology"), ("Law Enforcement", "Law Enforcement"), ("Sales and Marketing", "Sales and Marketing"), ("Science", "Science"), ("Transportation", "Transportation"), ("Other", "Other" ))
+    context = {
+        "jobs": mentors, 
+        "displayform": False, 
+        "jobtypechoices": jobtypechoices,
+        "has_mentor": request.user.mentor is not None,
+        "current_mentor": request.user.mentor.author.first_name if request.user.mentor else None
+    }
+    
+    return render(request, 'joblist/view-mentors.html', context)
+def submitmentor(request):
+    if request.method == "POST":
+        job_id = request.POST.get("job_id")
+        request.user.mentor = applicationMentor.objects.get(pk = job_id)
+        request.user.save()
+        return redirect('/')
+    return redirect('/')
+def students(request):
+    print(applicationMentor.objects.filter(author = request.user).first(), 'bye')
+    requests = CustomUser.objects.filter(mentor = applicationMentor.objects.filter(author = request.user).first())
+    print(requests, 'hi')
+    requests = requests.filter(role = "Student")
+    requests = requests.filter(status_mentor = "pending")
+    approved_students = CustomUser.objects.filter(mentor = applicationMentor.objects.filter(author = request.user).first())
+    approved_students = approved_students.filter(role = "Student")
+    approved_students = approved_students.filter(status_mentor = "accept")
+    print(approved_students, 'hi2')
+    return render(request, "joblist/students.html", {"requests": requests, "approved_students": approved_students})
+def accept_student(request, student_id, status):
+    student = CustomUser.objects.get(id = student_id)
+    student.status_mentor = status
+    if status == "reject":
+        student.mentor = None
+    print(status)
+    student.save()
+    return JsonResponse({'success': True})

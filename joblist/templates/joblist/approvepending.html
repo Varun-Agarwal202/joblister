@@ -31,7 +31,7 @@
             <td class="table-text">{{ job.education_level }}</td>
             <td class="table-text">{{ job.author }}</td>
             <td class="more-info">
-                <button onclick="moreinfo('{{ job.first_name }}', '{{ job.last_name }}', '{{ job.finishhighschool }}', '{{ job.birthdate }}', '{{ job.phone }}', '{{ job.email }}', '{{ job.address }}', '{{ job.education_level }}', '{{job.author}}', '{{job.id}}')">More Info</button>
+                <button onclick="moreinfo('{{ job.first_name }}', '{{ job.last_name }}', '{{ job.finishhighschool }}', '{{ job.birthdate }}', '{{ job.phone }}', '{{ job.email }}', '{{ job.address }}', '{{ job.education_level }}', '{{job.author}}', '{{job.id}}', '{{job.essay}}', '{{job.fieldofstudy}}')">More Info</button>
             </td>
         </tr>
         {% endfor %}
@@ -62,13 +62,18 @@
         <p><strong>Author:</strong> </p>
         <p id="popup-author"></p>
         <p id= "popup-id" hidden = "hidden"></p>
+        <p><strong>Reason for Application:</strong></p>
+        <p id="popup-essay"></p>
+        <p><strong>Field Of Study:</strong></p>
+        <p id="popup-fos"></p>
+        </div>
         <button class = "popup-approved" onclick = "updateStatus('approve')">Approve</button>
         <button class = "popup-approved" onclick = "updateStatus('reject')">Reject</button>
     </div>
 </div>
 </div>
 <script>
-    function moreinfo(first_name, last_name, finishhighschool, birthdate, phone, email, address, education_level, author, id) {
+    function moreinfo(first_name, last_name, finishhighschool, birthdate, phone, email, address, education_level, author, id, essay, fos) {
         popupOverlay.style.display = 'block';
         document.getElementById("popup-name").innerText = first_name + ' ' + last_name;
         document.getElementById("popup-fname").innerText = first_name;
@@ -81,6 +86,10 @@
         document.getElementById("popup-address").innerText = address;
         document.getElementById("popup-education").innerText = education_level;
         document.getElementById("popup-author").innerText = author;
+        document.getElementById("popup-essay").innerText = essay;
+        document.getElementById("popup-fos").innerText = fos;
+
+
     }
     function closePopup() {
         popupOverlay.style.display = 'none';

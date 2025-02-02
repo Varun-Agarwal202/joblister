@@ -16,6 +16,7 @@ class CustomSignupForm(SignupForm):
     birthday = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control', 'type':'date'}))
     phone = forms.CharField(max_length=30, label='Phone Number')
     address = forms.CharField()
+    recieveemails = forms.BooleanField(label='Recieve emails?', required=False,  widget=forms.CheckboxInput(attrs = {'class': 'form-check-input'}))
     def __init__(self, *args, **kwargs):
         super(CustomSignupForm, self).__init__(*args, **kwargs)
         self.fields['email'] = forms.CharField(required=True)
@@ -29,6 +30,7 @@ class CustomSignupForm(SignupForm):
         user.birthday = self.cleaned_data['birthday']
         user.phone = self.cleaned_data['phone']
         user.address = self.cleaned_data['address']
+        user.recieveemails = self.cleaned_data['recieveemails']
         user.save()
         return user
 location = forms.CharField(required = True)
@@ -64,6 +66,19 @@ class mentorApply(forms.ModelForm):
         ("Yes", "Yes"),
         ("No", "No")
     )
+    jobtypechoices = ( ("Arts", "Arts"),
+                      ("Business", "Business"),
+                        ("Communications", "Communications"),
+                        ("Education", "Education"),
+                        ("Healthcare", "Healthcare"),
+                        ("Hospitality", "Hospitality"),
+                        ("Information Technology", "Information Technology"),
+                        ("Law Enforcement", "Law Enforcement"),
+                        ("Sales and Marketing", "Sales and Marketing"),
+                        ("Science", "Science"),
+                        ("Transportation", "Transportation"),
+                        ("Other", "Other"))
+    fieldofstudy = forms.ChoiceField(choices = jobtypechoices, label = "Job Field")
     first_name = forms.CharField(max_length=30, label='First Name')
     last_name = forms.CharField(max_length=30, label='Last Name')
     finishhighschool = forms.ChoiceField(choices = choices, label = "Did you finish High School?")
@@ -72,9 +87,10 @@ class mentorApply(forms.ModelForm):
     email = forms.CharField(max_length=30, label='Email')
     address = forms.CharField(max_length=30, label='Address')
     education_level = forms.CharField(max_length=30, label='Education Level')
+    essay = forms.CharField(widget=forms.Textarea(attrs={'rows': 8, 'cols': 40, 'class': 'write'}), label='Please Write a Short Paragraph on Why You Want to be a Mentor')
     class Meta:
         model = applicationMentor
-        fields = ('first_name', 'last_name', 'finishhighschool', 'birthdate', 'phone', 'email', 'address', 'education_level', )
+        fields = ('first_name', 'last_name', 'finishhighschool', 'birthdate', 'phone', 'email', 'address', 'education_level', 'fieldofstudy', 'essay' )
 class Application(forms.ModelForm):
     
     education_level = forms.CharField(max_length=30, label='Education Level')

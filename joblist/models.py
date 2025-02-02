@@ -23,6 +23,8 @@ class applicationMentor(models.Model):
     education_level = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.TextField()
+    fieldofstudy = models.TextField()
+    essay = models.TextField(max_length=1000)
     def __str__(self):
         return (self.first_name + self.last_name)
     def save(self, *args, **kwargs):
@@ -47,7 +49,10 @@ class CustomUser(AbstractUser):
     birthday = models.DateField(null=True, blank=True)
     phone = models.TextField()              
     email = models.TextField()
+    status_mentor = models.TextField(default="pending")
+    mentor = models.ForeignKey(applicationMentor, on_delete=models.CASCADE, null = True, blank=True)
     address = models.TextField()
+    recieveemails = models.BooleanField(default=False)
     REQUIRED_FIELDS = ["phone","birthday","gender", "email", "address", "first_name", "last_name", "role"]
 class JobListing(models.Model):
     jobtypechoices = ( ("Arts", "Arts"),

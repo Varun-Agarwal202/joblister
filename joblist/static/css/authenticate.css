@@ -1,6 +1,7 @@
   /* File: styles.css */
 
   /* General body styling */
+
   .signup-page {
     transform: translate(0, 10%);
   }
@@ -182,7 +183,7 @@
       padding: 1rem 1.5rem; /* Increased padding for a larger navbar */
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
       z-index: 1000; /* Ensure navbar stays on top */
-      height: 100px; /* Increased navbar height */
+      height: 100px !important; /* Increased navbar height */
     }
     .navbar-custom .navbar-brand {
       color: #FFFFFF;
