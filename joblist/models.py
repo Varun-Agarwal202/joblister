@@ -8,6 +8,7 @@ User = settings.AUTH_USER_MODEL
 # Create your models here.
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
 
 
 class applicationMentor(models.Model):
@@ -34,26 +35,6 @@ class applicationMentor(models.Model):
             except IntegrityError:
                 return False
         return True
-class CustomUser(AbstractUser):
-    choices = ( ("Student", "Student"),
-               ("Employer", "Employer"),
-               ("Mentor", "Mentor"))
-    role = models.CharField(max_length=20, choices = choices)
-    first_name = models.TextField()
-    last_name = models.TextField()
-    choices = ( ("male", "male"),
-               ("female", "female"),
-               ("prefer not to say", "prefer not to say"))
-    
-    gender = models.CharField(choices=choices, max_length=20)
-    birthday = models.DateField(null=True, blank=True)
-    phone = models.TextField()              
-    email = models.TextField()
-    status_mentor = models.TextField(default="pending")
-    mentor = models.ForeignKey(applicationMentor, on_delete=models.CASCADE, null = True, blank=True)
-    address = models.TextField()
-    recieveemails = models.BooleanField(default=False)
-    REQUIRED_FIELDS = ["phone","birthday","gender", "email", "address", "first_name", "last_name", "role"]
 class JobListing(models.Model):
     jobtypechoices = ( ("Arts", "Arts"),
                       ("Business", "Business"),
@@ -89,6 +70,28 @@ class JobListing(models.Model):
     status = models.TextField()
     def __str__(self):
         return self.job_title
+class CustomUser(AbstractUser):
+    choices = ( ("Student", "Student"),
+               ("Employer", "Employer"),
+               ("Mentor", "Mentor"))
+    role = models.CharField(max_length=20, choices = choices)
+    first_name = models.TextField()
+    last_name = models.TextField()
+    choices = ( ("male", "male"),
+               ("female", "female"),
+               ("prefer not to say", "prefer not to say"))
+    
+    gender = models.CharField(choices=choices, max_length=20)
+    birthday = models.DateField(null=True, blank=True)
+    phone = models.TextField()              
+    email = models.TextField()
+    status_mentor = models.TextField(default="pending")
+    mentor = models.ForeignKey(applicationMentor, on_delete=models.CASCADE, null = True, blank=True)
+    address = models.TextField()
+    offers = models.ManyToManyField(JobListing, related_name='offers', blank=True)
+    recieveemails = models.BooleanField(default=False)
+    REQUIRED_FIELDS = ["phone","birthday","gender", "email", "address", "first_name", "last_name", "role"]
+
     
 class JobApply(models.Model):
     first_name = models.TextField()
@@ -120,3 +123,17 @@ class JobApply(models.Model):
     )
     def __str__(self):
         return self.first_name
+
+class MeetingEvent(models.Model):
+    mentor = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='hosted_meetings')
+    attendees = models.ManyToManyField(get_user_model(), related_name='joined_meetings', blank=True)
+    title = models.CharField(max_length=200)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    limit_people = models.IntegerField(default=30)
+    current_people = models.IntegerField(default=0)
+    private = models.BooleanField(default=False)
+    def __str__(self):
+        return f"{self.title} - {self.mentor.username}"

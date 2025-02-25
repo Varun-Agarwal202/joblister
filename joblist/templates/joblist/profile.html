@@ -1,0 +1,133 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Profile Header -->
+    <div class="text-center mb-4" id="profile-header">
+        <h1 class="display-4 mb-3">Profile</h1>
+        <h2 class="h4 text-muted">{{ user.first_name }} {{ user.last_name }}</h2>
+        <button class="btn btn-primary mt-3" onclick="toggleEditMode()">
+            <i class="fas fa-edit me-2"></i>Edit Profile
+        </button>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="card shadow-sm" id="profile-card" style="transform-origin: top; transition: all 0.3s ease;">
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="first_name" value="{{ user.first_name }} {{ user.last_name }}" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="phone" value="{{ user.phone }}" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" value="{{ user.address }}" disabled>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Gender</label>
+                        <input type="text" class="form-control" id="gender" value="{{ user.gender }}" disabled>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Save Button (Hidden by default) -->
+            <div class="text-center mt-4" id="save-button" style="display: none;">
+                <button class="btn btn-primary" onclick="saveProfile()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    background: white;
+    border-radius: 12px;
+    border: none;
+}
+
+.form-control:disabled {
+    background-color: transparent;
+    border: none;
+    padding-left: 0;
+    cursor: default;
+}
+
+.form-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+</style>
+
+<script>
+function toggleEditMode() {
+    const inputs = document.querySelectorAll('.form-control');
+    const saveButton = document.getElementById('save-button');
+    const card = document.getElementById('profile-card');
+    
+    // Animate card
+    card.style.transform = 'translateY(-20px)';
+    setTimeout(() => {
+        card.style.transform = 'translateY(0)';
+    }, 300);
+
+    // Enable inputs
+    inputs.forEach(input => {
+        input.disabled = !input.disabled;
+        if (!input.disabled) {
+            input.classList.add('border');
+        } else {
+            input.classList.remove('border');
+        }
+    });
+
+    // Toggle save button
+    saveButton.style.display = saveButton.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveProfile() {
+    // Your existing save logic here
+    const first_name = document.getElementById("first_name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+    const address = document.getElementById("address").value;
+    const gender = document.getElementById("gender").value;
+
+    fetch("/edit-profile/", {
+        method: "POST",
+        body: JSON.stringify({
+            first_name: first_name,
+            email: email,
+            phone: phone,
+            address: address,
+            gender: gender,
+        }),
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        toggleEditMode(); // Switch back to view mode
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+</script>
+{% endblock %}

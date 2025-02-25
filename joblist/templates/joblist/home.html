@@ -1,20 +1,402 @@
 {% extends "joblist/base.html" %}
-{%block content %}
-<h1> Welcome To The Website</h1>
-{% if admin %}
-<h2> You are an admin</h2>
-{% elif user.is_authenticated %}
-<h2>Welcome, {{user.username}}!</h2>
-<p> You are currently logged in.</p>
-<p><a href = "{% url 'account_logout' %}" >Log Out</a></p>
-<h3>Your role is {{user.role}}!</h3>
-{% if user.role == "Student" %}
-<h1>View Job Listings</h1>
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/homepage.css' %}">
+<!-- Add Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    console.log("{{user}}")
+</script>
+
+{% if user.is_authenticated %}
+    {% if user.is_superuser %}
+    <div class="admin-dashboard">
+        <h2>Admin Dashboard</h2>
+        <div class="admin-buttons">
+            <a href = '{% url 'approve-mentor' %}' class="admin-btn">
+                <i class="fas fa-users"></i>
+                Start Reviewing Mentors
+            </a>
+            <a href = '{% url 'approve-job' %}' class="admin-btn">
+                <i class="fas fa-briefcase"></i>
+                Start Reviewing Jobs
+            </a>
+        </div>
+    </div>
+    {% elif user.role == "Student" %}
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1>Welcome Back, {{ user.first_name }}!</h1>
+            <p class="welcome-subtitle">Your Student Dashboard</p>
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card">
+            <div class="status-header">
+                <h2>Mentorship Status</h2>
+                <span class="status-badge {% if mentor %}active{% else %}pending{% endif %}">
+                    {% if mentor %}Active{% else %}Pending{% endif %}
+                </span>
+            </div>
+            {% if mentor %}
+                <div class="mentor-info">
+                    <h3>Your Mentor</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <i class="fas fa-user"></i>
+                            <p>{{ mentor.first_name }} {{ mentor.last_name }}</p>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <p>{{ mentor.email }}</p>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <p>{{ mentor.phone }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="pending-state">
+                    <i class="fas fa-hourglass-half"></i>
+                    <p>Your mentorship request is being reviewed</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Applications Section -->
+        <div class="applications-section">
+            <h2>Your Applications</h2>
+            
+            <!-- Add Chart Here -->
+            <div class="application-stats">
+                <h3>Application Status Overview</h3>
+                {{ status_chart.labels|json_script:"status-labels" }}
+                {{ status_chart.values|json_script:"status-values" }}
+                <div style="width: 200px; margin: 0 auto;">
+                    <canvas style="width: 150px; height: 150px;" id="applicationChart"></canvas>
+                </div>
+                <script>
+                    const ctx = document.getElementById('applicationChart');
+                    const labels = JSON.parse(document.getElementById('status-labels').textContent);
+                    const values = JSON.parse(document.getElementById('status-values').textContent);
+                    
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: [
+                                    '#4CAF50',  // Accepted
+                                    '#FFC107',  // Pending
+                                    '#F44336'   // Declined
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        font: {
+                                            size: 8  // Even smaller font
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                </script>
+            </div>
+
+            <!-- Existing applications grid -->
+            <div class="applications-grid">
+                {% if apps %}
+                    {% for app in apps %}
+                    <div class="application-card">
+                        <div class="application-header">
+                            <h3>{{ app.job.job_title }}</h3>
+                            <span class="app-status {{ app.status|lower }}">{{ app.status }}</span>
+                        </div>
+                        <div class="application-details">
+                            <p><i class="fas fa-building"></i> {{ app.job.company_name }}</p>
+                            <p><i class="fas fa-envelope"></i> {{ app.job.author.email }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <p>No applications yet</p>
+                        <a href="{% url 'view-listings' %}" class="btn btn-primary">Browse Jobs</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% elif user.role == "Mentor" %}
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1>Welcome Back, {{ user.first_name }}!</h1>
+            <p class="welcome-subtitle">Your Mentor Dashboard</p>
+        </div>
+
+        <!-- Mentor Stats -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>{{ mentees.count }}</h3>
+                <p>Active Mentees</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-comments"></i>
+                <h3>{{ meetings.title }}</h3>
+                <p>Upcoming Meetings</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-star"></i>
+                <h3>{{ rating|default:"N/A" }}</h3>
+                <p>Mentor Rating</p>
+            </div>
+        </div>
+
+        <!-- Mentees Section -->
+        <div class="mentees-section">
+            <h2>Your Mentees</h2>
+            <div class="mentees-grid">
+                {% if mentees %}
+                    {% for mentee in mentees %}
+                    <div class="mentee-card">
+                        <div class="mentee-header">
+                            <i class="fas fa-user-graduate"></i>
+                            <h3>{{ mentee.first_name }} {{ mentee.last_name }}</h3>
+                        </div>
+                        <div class="mentee-details">
+                            <p><i class="fas fa-envelope"></i> {{ mentee.email }}</p>
+                            <p><i class="fas fa-phone"></i> {{ mentee.phone }}</p>
+                            <p><i class="fas fa-calendar-alt"></i> Joined {{ mentee.date_joined|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="mentee-actions">
+                            <a href="{% url 'calendar' %}" class="btn btn-primary btn-sm">Schedule Meeting</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-user-friends"></i>
+                        <p>No mentees assigned yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% elif user.role == "Employer" %}
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1>Welcome Back, {{ user.first_name }}!</h1>
+            <p class="welcome-subtitle">{{ user.company_name }} Dashboard</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{% url 'make-listings' -1 %}" class="action-card">
+                <i class="fas fa-plus-circle"></i>
+                <span>Post New Job</span>
+            </a>
+            <a href="{% url 'manage-listings' %}" class="action-card">
+                <i class="fas fa-building"></i>
+                <span>Company Profile</span>
+            </a>
+            <a href="{% url 'view-applications' %}" class="action-card">
+                <i class="fas fa-tasks"></i>
+                <span>Manage Applications</span>
+            </a>
+        </div>
+
+        <!-- Job Listings Overview -->
+        <div class="listings-section">
+            <h2>Your Active Listings</h2>
+            <div class="listings-grid">
+                {% if job_listings %}
+                    {% for job in job_listings %}
+                    <div class="listing-card">
+                        <div class="listing-header">
+                            <h3>{{ job.job_title }}       </h3>
+                        </div>
+                        <div class="listing-details">
+                            <p><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+                            <p><i class="fas fa-clock"></i> Posted {{ job.date_posted|timesince }} ago</p>
+                            <p><i class="fas fa-briefcase"></i> {{ job.jobfield }}</p>
+                        </div>
+                        <div class="listing-actions">
+                            <a href="{% url 'manage-listings' %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                            <a href="{% url 'view-applications' %}" class="btn btn-primary btn-sm">View Applications</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-briefcase"></i>
+                        <p>No active job listings</p>
+                        <a href="{% url 'make-listings' -1 %}" class="btn btn-primary">Post Your First Job</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="user-dashboard">
+        <h2>Welcome back, {{user.first_name}}!</h2>
+        <div class="dashboard-stats">
+            <!-- Add user-specific stats and quick actions -->
+        </div>
+    </div>
 {% endif %}
 {% else %}
-<h2> You are not logged in </h2>
-<p> Please Log In or Sign Up to Access All Features</p>
+    <img src="{% static 'images/logo.png' %}" alt="PathFinder Logo" class="logo pathfinder-logo" style = "margin-top: -30px;">
+<!-- Hero Section -->
+
+<div style = "margin-left: -10px;" class="hero-section">
+    <div class="gradient-overlay"></div>
+    <div class="hero-content">
+        <h1 class="hero-title">Find Your Path to Success</h1>
+        <p class="hero-subtitle">Connect with mentors, discover opportunities, and build your career</p>
+        <div class="hero-buttons">
+            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg pulse">Get Started</a>
+            <a href="{% url 'view-listings' %}" class="btn btn-outline-light btn-lg">Browse Jobs</a>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="{% static 'images/career.svg' %}" alt="Career illustration">
+    </div>
+</div>
+    
+<!-- Wave Separator -->
+<div style = "margin-left: -10px;" class="wave-separator">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path fill="#1E3A8A" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+    </svg>
+</div>
+
+<!-- Features Section -->
+<div class="features-section">
+    <h2 class="section-title">Why Choose PathFinder?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <i class="fas fa-briefcase feature-icon"></i>
+            </div>
+            <h3>Job Opportunities</h3>
+            <p>Access thousands of curated job listings from top employers</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <i class="fas fa-users feature-icon"></i>
+            </div>
+            <h3>Mentorship</h3>
+            <p>Connect with experienced professionals in your field</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <i class="fas fa-graduation-cap feature-icon"></i>
+            </div>
+            <h3>Career Growth</h3>
+            <p>Learn and develop with personalized guidance</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section with Gradient -->
+<div style = "margin-left: -10px;" class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-number">10k+</div>
+            <p class="stat-label">Active Jobs</p>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">5k+</div>
+            <p class="stat-label">Mentors</p>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">50k+</div>
+            <p class="stat-label">Success Stories</p>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews Section -->
+<div class="reviews-section">
+    <h2 class="section-title">What Our Users Say</h2>
+    <div class="reviews-grid">
+        <div class="review-card">
+            <div class="review-header">
+                <img src="{% static 'images/avatar2.svg' %}" alt="User Avatar" class="review-avatar">
+                <div class="review-meta">
+                    <h3>Shreya Sarangi</h3>
+                </div>
+            </div>
+            <p class="review-text">"PathFinder helped me land my dream job! The mentorship program was invaluable in preparing for technical interviews."</p>
+        </div>
+
+        <div class="review-card">
+            <div class="review-header">
+                <img src="{% static 'images/avatar1.svg' %}" alt="User Avatar" class="review-avatar">
+                <div class="review-meta">
+                    <h3>Sohum Krishna</h3>
+                </div>
+            </div>
+            <p class="review-text">"The personalized job recommendations were spot-on. Found and applied to relevant positions with just a few clicks."</p>
+        </div>
+
+        <div class="review-card">
+            <div class="review-header">
+                <img src="{% static 'images/avatar3.svg' %}" alt="User Avatar" class="review-avatar">
+                <div class="review-meta">
+                    <h3>Ethan Tao</h3>
+                </div>
+            </div>
+            <p class="review-text">"The career guidance and resources here are exceptional. Made my transition into product management seamless."</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to check if element is in viewport
+    function isInViewport(element) {
+        const rect = element.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    // Function to handle scroll animation
+    function handleScrollAnimation() {
+        const features = document.querySelectorAll('.feature-card, .stat-item, .review-card');
+        features.forEach(feature => {
+            if (isInViewport(feature)) {
+                console.log(feature);
+                feature.classList.add('animate');
+            }
+        });
+    }
+
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScrollAnimation);
+    // Run once on page load
+    handleScrollAnimation();
+</script>
 {% endif %}
 
-
-{%endblock content%}
+{% endblock content %}

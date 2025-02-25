@@ -1,0 +1,262 @@
+{% extends 'joblist/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div id='calendar'></div>
+</div>
+
+{% if not is_student %}
+<!-- Mentor's modal for creating meetings -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Schedule Meeting</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Meeting Title</label>
+                        <input type="text" class="form-control" id="eventTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventStart" class="form-label">Start Time</label>
+                        <input type="datetime-local" class="form-control" id="eventStart" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventEnd" class="form-label">End Time</label>
+                        <input type="datetime-local" class="form-control" id="eventEnd" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventLimit" class="form-label">Limit People</label>
+                        <input type="number" class="form-control" id="eventLimit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventPrivate" class="form-label">Make Meeting Private</label>
+                        <input type="checkbox" class="form-check-input" id="eventPrivate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveEvent">Save Meeting</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        selectable: true,
+        select: function(info) {
+            var modal = new bootstrap.Modal(document.getElementById('eventModal'));
+            document.getElementById('eventStart').value = info.startStr;
+            document.getElementById('eventEnd').value = info.endStr;
+            modal.show();
+        },
+        events: '/api/events/'
+    });
+    calendar.render();
+
+    // Mentor's event saving code
+    document.getElementById('saveEvent').addEventListener('click', function() {
+        const title = document.getElementById('eventTitle').value;
+        const start = document.getElementById('eventStart').value;
+        const end = document.getElementById('eventEnd').value;
+        const description = document.getElementById('eventDescription').value;
+        const limit = document.getElementById('eventLimit').value;
+        const private = document.getElementById('eventPrivate').checked;
+
+        fetch('/api/events/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                title: title,
+                start: start,
+                end: end,
+                description: description,
+                limit_people: limit,
+                private: private
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            calendar.addEvent(data);
+            bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+            document.getElementById('eventForm').reset();
+        });
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endif %}
+
+{% if is_student %}
+<!-- Student's modal for viewing meeting details -->
+<div class="modal fade" id="studentEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Meeting Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="meetingTitle"></h4>
+                <p><strong>Mentor:</strong> <span id="meetingMentor"></span></p>
+                <p><strong>Email:</strong> <span id="meetingMentorEmail"></span></p>
+                <p><strong>Phone:</strong> <span id="meetingMentorPhone"></span></p>
+                <p hidden="hidden" id="meetingID"></p>
+                <p><strong>Time:</strong> <span id="meetingTime"></span></p>
+                <p><strong>Description:</strong> <span id="meetingDescription"></span></p>
+                <p><strong>Available Spots:</strong> <span id="meetingSpots"></span></p>
+                <p><strong>Current People:</strong> <span id="meetingCurrentPeople"></span></p>
+                <button type="button" class="btn btn-primary" id="joinMeeting">Join Meeting</button>
+                <button type="button" class="btn btn-danger" id="cancelMeeting" style="display: none;">Cancel Meeting</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        selectable: false,
+        eventClick: function(info) {
+            var modal = new bootstrap.Modal(document.getElementById('studentEventModal'));
+            document.getElementById('meetingTitle').textContent = info.event.title;
+            document.getElementById('meetingTime').textContent = 
+                formatDateTime(info.event.start) + ' - ' + formatDateTime(info.event.end);
+            document.getElementById('meetingDescription').textContent = 
+                info.event.extendedProps.description || 'No description provided';
+            document.getElementById('meetingSpots').textContent = 
+                (info.event.extendedProps.limit_people) + ' spots available';
+            document.getElementById('meetingCurrentPeople').textContent = 
+                (info.event.extendedProps.current_people) + ' people in meeting';
+            document.getElementById('meetingMentor').textContent = 
+                info.event.extendedProps.mentor_fname + ' ' + info.event.extendedProps.mentor_lname || 'No mentor assigned';
+            document.getElementById('meetingMentorEmail').textContent = 
+                info.event.extendedProps.mentor_email || 'No mentor email provided';
+            document.getElementById('meetingMentorPhone').textContent = 
+                info.event.extendedProps.mentor_phone || 'No mentor phone provided';
+            document.getElementById('meetingID').textContent = 
+                info.event.extendedProps.event_id;
+
+            // Toggle buttons based on whether user has joined
+            if (info.event.extendedProps.has_joined) {
+                document.getElementById('joinMeeting').style.display = 'none';
+                document.getElementById('cancelMeeting').style.display = 'block';
+            } else {
+                document.getElementById('joinMeeting').style.display = 'block';
+                document.getElementById('cancelMeeting').style.display = 'none';
+            }
+            modal.show();
+        },
+        eventDidMount: function(info) {
+            // Make joined events red and add a visual indicator that they're unclickable
+            if (info.event.extendedProps.has_joined) {
+                info.el.style.backgroundColor = '#ff4444';
+                info.el.style.borderColor = '#cc0000';
+                info.el.style.cursor = 'not-allowed';
+            }
+        },
+        events: '/api/events/'
+    });
+    calendar.render();
+
+    // Add event listener for cancel button
+    document.getElementById('cancelMeeting').addEventListener('click', function() {
+        const event_id = document.getElementById('meetingID').textContent;
+        fetch('/api/events/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                event_id: event_id,
+                action: 'cancel'  // Add this to differentiate between join and cancel
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            bootstrap.Modal.getInstance(document.getElementById('studentEventModal')).hide();
+            calendar.refetchEvents();  // Refresh calendar to show updated spots
+            alert('Successfully cancelled meeting');
+        });
+    });
+
+    // Existing join meeting event listener
+    document.getElementById('joinMeeting').addEventListener('click', function() {
+        const event_id = document.getElementById('meetingID').textContent;
+        fetch('/api/events/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                event_id: event_id,
+                action: 'join'  // Add this to differentiate between join and cancel
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            bootstrap.Modal.getInstance(document.getElementById('studentEventModal')).hide();
+            calendar.refetchEvents();  // Refresh calendar to show updated spots
+            alert('Successfully joined meeting');
+        });
+    });
+});
+
+function formatDateTime(date) {
+    return new Date(date).toLocaleString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+    });
+}
+</script>
+{% endif %}
+{% endblock %} 

@@ -1,28 +1,87 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import JobForm, Application, mentorApply
-from .models import JobListing, JobApply, applicationMentor, CustomUser
+from .models import JobListing, JobApply, applicationMentor, CustomUser, MeetingEvent
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.http import require_http_methods
+from datetime import datetime
+from django.db.models import Count
+from django.contrib.auth.decorators import login_required
 
 import json
 job_id_saver = 0
 
 def home(request): 
     user = request.user
-    if user.is_superuser:
-        return render(request, "joblist/home.html", {"admin": True})
-    if user.is_authenticated:
-        role = user.role
-        if role == "Student":
-            apps = JobApply.objects.filter(creater = user)
-            return render(request, "joblist/studentview.html", {"apps": apps})
-        else:
-            return render(request, 'joblist/home.html', {"admin": False})
-    else:
-        return render(request, 'joblist/home.html', {"admin": False})
+    context = {'user': user}
     
+    if user.is_authenticated:
+        if user.is_superuser:
+            context['admin'] = True
+            # Add admin dashboard stats
+            context['total_users'] = CustomUser.objects.count()
+            context['total_jobs'] = JobListing.objects.count()
+            context['total_applications'] = JobApply.objects.count()
+            
+            # Add job categories chart data
+            job_categories = JobListing.objects.values('job_type').annotate(count=Count('job_type'))
+            context['job_categories'] = {item['job_type']: item['count'] for item in job_categories}
+            
+        else:
+            context['admin'] = False
+            if user.role == "Student":
+                apps = JobApply.objects.filter(creater=user)
+                context['apps'] = apps
+                
+                # Create status counts dictionary
+                status_counts = apps.values('status').annotate(count=Count('status'))
+                
+                # Create separate lists for labels and values
+                status_chart = {
+                    'labels': [],
+                    'values': []
+                }
+                
+                for item in status_counts:
+                    status_chart['labels'].append(item['status'])
+                    status_chart['values'].append(item['count'])
+                
+                context['status_chart'] = status_chart
+                
+                if user.mentor and user.status_mentor == "accept":
+                    context['mentor'] = user.mentor.author
+                    
+            if user.role == "Employer":
+                job_listings = JobListing.objects.filter(author=user)
+                context['job_listings'] = job_listings
+                
+                # Add applications per job chart data
+                apps_per_job = {}
+                for job in job_listings:
+                    apps_per_job[job.job_title] = JobApply.objects.filter(job=job).count()
+                context['apps_per_job'] = apps_per_job
+                
+            if user.role == "Mentor":
+                mentees = CustomUser.objects.filter(mentor=applicationMentor.objects.filter(author=user).first())
+                context['mentees'] = mentees
+                context['meetings'] = MeetingEvent.objects.filter(mentor=user).order_by('-created_at').first()
+                
+                # Add mentee progress tracking
+                mentee_progress = {}
+                for mentee in mentees:
+                    completed_meetings = MeetingEvent.objects.filter(
+                        mentor=user,
+                        attendees=mentee
+                    ).count()
+                    mentee_progress[mentee.email] = completed_meetings
+                context['mentee_progress'] = mentee_progress
+    
+    return render(request, 'joblist/home.html', context)
+@login_required   
 def listings(request):
     jobs2 = []
     jobs = JobListing.objects.filter(status = "approve")
@@ -34,8 +93,12 @@ def listings(request):
             jobs2.append(job)
     jobtypechoices = ( ("Arts", "Arts"), ("Business", "Business"), ("Communications", "Communications"), ("Education", "Education"), ("Healthcare", "Healthcare"), ("Hospitality", "Hospitality"), ("Information Technology", "Information Technology"), ("Law Enforcement", "Law Enforcement"), ("Sales and Marketing", "Sales and Marketing"), ("Science", "Science"), ("Transportation", "Transportation"), ("Other", "Other" ))
     return render(request, 'joblist/view-listings.html', {"jobs": jobs2, "displayform": False, "jobtypechoices": jobtypechoices})
+@login_required   
+
 def profile(request):
-    return
+    return render(request, 'joblist/profile.html', {"user": request.user})
+@login_required   
+
 def make_listings(request, job_id):
     if job_id == "-1": 
         form = JobForm()
@@ -226,6 +289,7 @@ def submitmentor(request):
     if request.method == "POST":
         job_id = request.POST.get("job_id")
         request.user.mentor = applicationMentor.objects.get(pk = job_id)
+        request.user.status_mentor = "pending"
         request.user.save()
         return redirect('/')
     return redirect('/')
@@ -248,3 +312,172 @@ def accept_student(request, student_id, status):
     print(status)
     student.save()
     return JsonResponse({'success': True})
+
+class CalendarView(LoginRequiredMixin, TemplateView):
+    template_name = 'joblist/calendar.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_student'] = False
+        return context
+
+@require_http_methods(["GET", "POST"])
+def event_api(request):
+    if request.method == "GET":
+        if request.user.role == "Student":
+            # Get all public meetings
+            public_meetings = MeetingEvent.objects.filter(private=False)
+            
+            # If student has a mentor, also get their private meetings
+            if request.user.mentor:
+                mentor_private_meetings = MeetingEvent.objects.filter(
+                    mentor=request.user.mentor.author,
+                    private=True
+                )
+                # Combine querysets
+                events = public_meetings | mentor_private_meetings
+            else:
+                events = public_meetings
+
+        else:
+            # If user is a mentor, get their own events
+            events = MeetingEvent.objects.filter(mentor=request.user)
+
+        return JsonResponse([{
+            'event_id': event.id,
+            'title': event.title,
+            'start': event.start.strftime('%Y-%m-%dT%H:%M:%S'),
+            'end': event.end.strftime('%Y-%m-%dT%H:%M:%S'),
+            'description': event.description,
+            'limit_people': event.limit_people,
+            'private': event.private,
+            'current_people': event.current_people,
+            'mentor_fname': event.mentor.first_name,
+            'mentor_lname': event.mentor.last_name,
+            'mentor_email': event.mentor.email,
+            'mentor_phone': event.mentor.phone,
+            'has_joined': event.attendees.filter(id=request.user.id).exists()
+        } for event in events], safe=False)
+    
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        if request.user.role == "Student":
+            event = MeetingEvent.objects.get(id=data['event_id'])
+            
+            if data.get('action') == 'cancel':
+                event.attendees.remove(request.user)
+                event.current_people -= 1
+                event.save()
+                return JsonResponse({'success': True})
+            elif data.get('action') == 'join':
+                event.attendees.add(request.user)
+                event.current_people += 1
+                event.save()
+                return JsonResponse({'success': True})
+                
+        else:
+            event = MeetingEvent.objects.create(
+                mentor=request.user,
+                title=data['title'],
+                start=datetime.fromisoformat(data['start'].replace('Z', '+00:00')),
+                end=datetime.fromisoformat(data['end'].replace('Z', '+00:00')),
+                description=data['description'],
+                limit_people=data['limit_people'],
+                private=data['private']
+            )
+            
+        return JsonResponse({
+            'event_id': event.id,
+            'title': event.title,
+            'start': event.start.strftime('%Y-%m-%dT%H:%M:%S'),
+            'end': event.end.strftime('%Y-%m-%dT%H:%M:%S'),
+            'description': event.description,
+            'limit_people': event.limit_people,
+            'private': event.private
+        })
+class StudentCalendarView(LoginRequiredMixin, TemplateView):
+    template_name = 'joblist/calendar.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['events'] = MeetingEvent.objects.filter(mentor=self.request.user)
+        context['is_student'] = True
+        return context
+def offers(request):
+    students = JobApply.objects.filter(creater__role = "Student")
+    students = students.filter(resume__isnull = False)
+    students = students.exclude(status = "accepted")
+    
+    job = JobListing.objects.filter(author = request.user)
+    print(job, 'job')
+    print(job, 'JOB')
+    if job.count() == 1:
+        return render(request, "joblist/offers.html", {"students": students, "ask": False, "job": job.first()})
+    elif job.count() > 1:
+        return render(request, "joblist/offers.html", {"students": students, "ask": True, "job": job})
+    else:
+        return render(request, "joblist/offers.html", {"students": students, "ask": False, "job": None})
+def jobOffer(request):
+    data = json.loads(request.body)
+    if data.get('status') == "":
+        student = CustomUser.objects.get(id = data.get('student_id'))
+        student.offers.add(JobListing.objects.get(id = data.get('job_id')))
+        student.save()
+    elif data.get('status') == 'accept':
+        student = CustomUser.objects.get(id = data.get('student_id'))
+        student.offers.remove(JobListing.objects.get(id = data.get('job_id')))
+        student_application = JobApply.objects.get(creater = student)
+        student_application.job = JobListing.objects.get(id = data.get('job_id'))
+        student_application.status = 'accepted'
+        student.save()
+        student_application.save()
+    elif data.get('status') == 'reject':
+        student = CustomUser.objects.get(id = data.get('student_id'))
+        student.offers.remove(JobListing.objects.get(id = data.get('job_id')))
+        student.save()
+    
+    return JsonResponse({'success': True})
+
+def job_offers(request):
+    offers = request.user.offers.all()
+    student_id = request.user.id
+    return render(request, "joblist/job-offers.html", {"offers": offers, "student_id": student_id})
+def edit_profile(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            
+            # Split the full name into first_name and last_name
+            full_name = data.get('first_name', '').split()
+            if len(full_name) >= 2:
+                first_name = full_name[0]
+                last_name = ' '.join(full_name[1:])
+            else:
+                first_name = full_name[0] if full_name else ''
+                last_name = ''  # or some default value
+            
+            # Update user information
+            user = request.user
+            user.first_name = first_name
+            user.last_name = last_name
+            user.email = data.get('email')
+            user.phone = data.get('phone')
+            user.address = data.get('address')
+            user.gender = data.get('gender')
+            user.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+            
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=405)
+def sources(request):
+    return render(request, "joblist/sources.html")

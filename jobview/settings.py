@@ -18,8 +18,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATIC_URL = os.path.join(BASE_DIR, "/joblist/static")
-STATICFILES_DIRS = [BASE_DIR/"joblist"/"static"]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Point to only one static directory
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'joblist', 'static'),  # Use only the app-level static directory
+]
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -49,7 +55,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'joblist'
+    'joblist',
+    'accessibility',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +85,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accessibility.context_processors.admin_AIOA',
             ],
         },
     },
@@ -134,8 +142,6 @@ ACCOUNT_EMAIL_VERIFACTION = "none"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

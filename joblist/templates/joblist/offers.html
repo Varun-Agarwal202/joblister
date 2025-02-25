@@ -1,0 +1,204 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+{% if ask %}
+<div class="modal fade" id="mentorWarningModal" tabindex="-1" aria-labelledby="mentorWarningModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mentorWarningModalLabel">Job Listing</h5>
+            </div>
+            <div class="modal-body">
+                What Job Listing do you want to offer this under?
+            </div>
+            <select class="form-select" id="jobSelect" style="width: 80%; margin-left: 10%;">
+                {% for job in job %}
+                    <option  value="{{ job.id }}">{{ job.job_title }}</option>
+                {% endfor %}
+            </select>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='/'">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="continueToPage()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function() {
+        var mentorWarningModal = new bootstrap.Modal(document.getElementById('mentorWarningModal'));
+        mentorWarningModal.show();
+    }
+    let selectedJobId; // Global variable to store the job_id
+    function continueToPage() {
+        selectedJobId = document.getElementById('jobSelect').value; // Store the value
+        var mentorWarningModal = bootstrap.Modal.getInstance(document.getElementById('mentorWarningModal'));
+        mentorWarningModal.hide();
+    }
+</script>
+{% elif not ask %}
+<div id = "jobId" value = "{{job.id}}" hidden = "hidden"></div>
+<script>
+    selectedJobId = document.getElementById('jobId').value;
+</script>
+{% endif %}
+{% if job == None %}
+<div class="modal fade" id="mentorWarningModal" tabindex="-1" aria-labelledby="mentorWarningModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mentorWarningModalLabel">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                You need to create a job listing before you can offer a job.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="window.location.href='/'">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<h1> Make Job Offers!</h1>
+
+        <table class = "table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Birthday</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Education Level</th>
+                <th>Previous Jobs</th>
+                <th>More Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr class = "table-body">
+            <td class = "table-text">{{student.first_name}} {{student.last_name}}</td>
+            <td class = "table-text">{{student.gender}}</td>
+            <td class = "table-text">{{student.birthdate}}</td>
+            <td class = "table-text">{{student.phone}}</td>
+            <td class = "table-text">{{student.email}}</td>
+            <td class = "table-text">{{student.address}}</td>
+            <td class = "table-text">{{student.education_level}}</td>
+            <td class = "table-text">{{student.previousjobs}}</td>
+            <td class = "table-text">
+                <button onclick="moreinfo('{{ student.first_name }}', '{{ student.last_name }}', '{{ student.gender }}', '{{ student.birthdate }}', '{{ student.phone }}', '{{ student.email }}', '{{ student.address }}', '{{ student.education_level }}', '{{student.previousjobs}}', '{{student.resume}}', '{{student.creater.id}}', '{{student.author}}')">More Info</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="modal fade" id="mentorWarningModal" tabindex="-1" aria-labelledby="mentorWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mentorWarningModalLabel">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to offer this job to the student?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='/'">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="continueToMentors()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup">
+        <span class="popup-close" style="cursor: pointer; position: absolute; left: 10px;" onclick="closePopup()">&times;</span>
+        <br>
+        <div class="popup-content">
+            
+        <h3 id="popup-title"></h2>
+        <br>
+        <p><strong>Gender:</strong> </p>
+        <p id="popup-gender"></p>
+        <p><strong>Birthday:</strong></p>
+        <p id="popup-birthdate"></p>
+        <p><strong>Phone:</strong> </p>
+        <p id="popup-phone"></p>
+        <p><strong>Email:</strong> </p>
+        <p id="popup-email"></p>
+        <p><strong>Address:</strong> </p>
+        <p id="popup-address"></p>
+        <p><strong>Education Level:</strong> </p>
+        <p id="popup-education_level"></p>
+        <p><strong>Previous Jobs:</strong> </p>
+        <p id="popup-previousjobs"></p>
+        <p><strong>Resume:</strong> </p>
+        <a id = "popup-resume" href = "{{apps1.resume.url}}" download = "{{apps1.resume.name}}"></a>
+        <br>
+        <br>
+        <p id  = "popup-id" hidden = "hidden"></p>
+        <button class = "popup-approved" onclick = "offer()">Offer</button>
+    </div>
+</div>
+</div>
+<script>
+    function moreinfo(fname, lname, gender, birthdate, phone, email, address, education_level, previousjobs, resume, id, author) {
+        popupOverlay.style.display = 'block';
+        document.getElementById("popup-title").innerText = fname + ' ' + lname;
+        document.getElementById("popup-gender").innerText = gender;
+        document.getElementById("popup-birthdate").innerText = birthdate;
+        document.getElementById("popup-phone").innerText = phone;
+        document.getElementById("popup-email").innerText = email;
+        document.getElementById("popup-address").innerText = address;
+        document.getElementById("popup-education_level").innerText = education_level;
+        document.getElementById("popup-previousjobs").innerText = previousjobs;
+        document.getElementById('popup-resume').setAttribute("href", `/media/${resume}`);
+        document.getElementById('popup-resume').innerText =  "Download";
+        document.getElementById("popup-id").innerText = id;
+
+    }
+    function closePopup() {
+        popupOverlay.style.display = 'none';
+    }
+    function offer() {
+        console.log("here?")
+        var student_id = document.getElementById('popup-id').innerText;
+        fetch(`/jobOffer/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ 
+                student_id: student_id,
+                job_id: selectedJobId,
+                status: ""
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Job offer sent succesfully')
+            }
+            else {
+                alert('Failed to send job offer')
+                console.log(data.success)
+            }
+            location.href = '/'
+        })
+    }
+
+    function continueToMentors() {
+        // Close the modal and stay on the page
+        var mentorWarningModal = bootstrap.Modal.getInstance(document.getElementById('mentorWarningModal'));
+        mentorWarningModal.hide();
+    }
+    window.onclick = function(event) {
+        const popupOverlay = document.getElementById("popupOverlay");
+        if (event.target == popupOverlay) {
+            closePopup();
+        }
+    }
+</script>
+{% endblock content %} 

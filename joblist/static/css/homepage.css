@@ -1,0 +1,476 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&display=swap');
+
+/* Apply fonts to different elements */
+body {
+  font-family: 'Nunito', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+.parallax {
+    /* The image used */
+    background-image: url("img_parallax.jpg");
+  
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  .logo-container {
+    position: relative; /* Needed for absolute positioning */
+    display: inline-block; /* Or block, depending on how you want it to flow */
+    /* Add any padding or margins around the container if needed */
+}
+
+.logo-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Or contain, depending on the effect you want */
+    opacity: 0.5; /* Adjust opacity as needed */
+    z-index: -1; /* Place behind the logo */
+    filter: blur(1px); /* Optional: Add blur */
+}
+
+.logo {
+    position: relative; /* Needed to ensure logo is above background */
+    z-index: 1; /* Place logo above background */
+    /* ... other logo styles ... */
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.welcome-section {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.welcome-section h1 {
+    color: #1E3A8A;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    color: #64748B;
+    font-size: 1.2rem;
+}
+
+.status-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.status-header h2 {
+    color: #1E3A8A;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.status-badge.pending {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.mentor-info {
+    background: #F8FAFC;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-item i {
+    color: #1E3A8A;
+}
+
+.applications-section {
+    margin-top: 3rem;
+}
+
+.applications-section h2 {
+    color: #1E3A8A;
+    margin-bottom: 1.5rem;
+}
+
+.applications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.application-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.application-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.application-header h3 {
+    margin: 0;
+    color: #1E3A8A;
+    font-size: 1.1rem;
+}
+
+.app-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+.app-status.pending {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.app-status.accepted {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.app-status.rejected {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+.application-details {
+    color: #64748B;
+    font-size: 0.9rem;
+}
+
+.application-details p {
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #64748B;
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state .btn {
+    margin-top: 1rem;
+}
+
+.pending-state {
+    text-align: center;
+    padding: 2rem;
+    color: #D97706;
+}
+
+.pending-state i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.admin-dashboard {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.admin-dashboard h2 {
+    color: #1E3A8A;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.admin-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.admin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #1E3A8A;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-btn:hover {
+    background: #2563EB;
+    transform: translateY(-2px);
+}
+
+.admin-btn i {
+    font-size: 1.2rem;
+}
+/* Dashboard Container */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Welcome Section */
+.welcome-section {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.welcome-section h1 {
+    font-size: 2.5rem;
+    color: #1a365d;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    color: #4a5568;
+    font-size: 1.2rem;
+}
+
+/* Stats Overview */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    color: #4299e1;
+    margin-bottom: 1rem;
+}
+
+.stat-card h3 {
+    font-size: 1.8rem;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.action-card {
+    background: #4299e1;
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.action-card:hover {
+    background: #3182ce;
+    color: white;
+}
+
+.action-card i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Mentees/Listings Grid */
+.mentees-grid, .listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.mentee-card, .listing-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mentee-header, .listing-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.mentee-header i, .listing-header i {
+    font-size: 1.5rem;
+    color: #4299e1;
+    margin-right: 1rem;
+}
+
+.mentee-details p, .listing-details p {
+    margin: 0.5rem 0;
+    color: #4a5568;
+}
+
+.mentee-actions, .listing-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    background: #f7fafc;
+    border-radius: 10px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #a0aec0;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #4a5568;
+    margin-bottom: 1rem;
+}
+
+/* Badges */
+.listing-badge {
+    background: #ebf8ff;
+    color: #4299e1;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+/* Features Animation */
+.feature-card {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.6s ease-out;
+}
+
+.feature-card.animate {
+    opacity: 1;
+    transform: translateX(0); /* move the box */
+}
+
+/* Add different delays for each card */
+.feature-card:nth-child(1) {
+    transition-delay: 0.2s;
+}
+
+.feature-card:nth-child(2) {
+    transition-delay: 0.4s;
+}
+
+.feature-card:nth-child(3) {
+    transition-delay: 0.6s;
+}
+/* Add to your static/css/style.css */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.status-pending { background-color: #FFC107; }
+.status-approved { background-color: #4CAF50; }
+.status-rejected { background-color: #F44336; }
+
+.progress-bar {
+    height: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #2196F3;
+    transition: width 0.3s ease;
+}

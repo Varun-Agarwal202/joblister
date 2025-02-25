@@ -1,95 +1,170 @@
 {% extends "joblist/base.html" %}
 
 {% block content %}
-<h1>List of Submitted Applications</h1>
-{% for job in jobs %}
-<div>
-    <h2>{{ job.job_title }}</h2>
-
-    {% for key, app in apps.items %}
-    {% if key == job.pk %}
-    {% for apps1 in app %}
-    <div class="d-flex">
-        {% if apps1.status != "rejected" %}
-        <h4>{{ apps1.first_name }}</h4>
-        {% if apps1.status == "pending" %}
-        <button id = 'viewapp' style="margin-left: 200px;" onclick="viewapp('{{ job.job_title }}', '{{ apps1.first_name }}', '{{ apps1.last_name }}', '{{ apps1.gender }}', '{{ apps1.birthdate }}', '{{ apps1.phone }}', '{{ apps1.email }}', '{{ apps1.address }}', '{{ apps1.education_level }}', '{{apps1.id}}', '{{apps1.resume}}', '{{apps1.previousjobs}}')">View Application</button>
-        {% else %}
-        <div><h5 class = "status_show">{{apps1.status}}</h5></div>
-        {% endif %}
-        {% endif %}
-
+<div class="applications-container">
+    <div class="applications-header">
+        <h1>Applications Dashboard</h1>
     </div>
-    {% endfor %}
-    {% endif %}
-    {% endfor %}
-</div>
-{% endfor %}
 
-<div class="sidebar" id="sidebar" hidden = "hidden">
-    <h2>Application Details</h2>
-    <h4 id="title-job"></h4>
-    <p id="name"></p>
-    <p id="gender">Click on job to view details</p>
-    <p id="birthdate"></p>
-    <p id="phone"></p>
-    <p id="email"></p>
-    <p id="address"></p>
-    <p id = "previousjobs"></p>
-    <p id="education_level"></p>
-    <a id = "resume" href = "{{apps1.resume.url}}" download = "{{apps1.resume.name}}"></a>
-    <br>    <br>
+    <div class="applications-grid">
+        {% for job, applications in apps.items %}
+        {% for j in jobs %}
+        {% if j.pk == job %}
+        <div class="job-applications-card">
+            <div class="job-header">
+                <h2>{{ j.job_title }}</h2>
+                <span class="application-count">
+                    {{ applications|length }} Application{{ applications|length|pluralize }}
+                </span>
+            </div>
 
-        <button onclick = "updtateAppStatus('accepted')" id = "accept-button" hidden = "hidden">Accept</button>
-        <button onclick = "updtateAppStatus('rejected')" id = "reject-button" hidden = "hidden">Reject</button>
+            <div class="applications-list">
+                {% for app in applications %}
+                {% if app.status != "rejected" %}
+                <div class="application-item">
+                    <div class="applicant-info">
+                        <div class="applicant-name">
+                            <i class="fas fa-user"></i>
+                            <span>{{ app.first_name }} {{ app.last_name }}</span>
+                        </div>
+                        {% if app.status == "pending" %}
+                        <span class="status-badge pending">Pending Review</span>
+                        {% else %}
+                        <span class="status-badge {{ app.status|lower }}">{{ app.status }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if app.status == "pending" %}
+                    <button class="view-application-btn" onclick="viewapp('{{ j.job_title }}', '{{ app.first_name }}', '{{ app.last_name }}', '{{ app.gender }}', '{{ app.birthdate }}', '{{ app.phone }}', '{{ app.email }}', '{{ app.address }}', '{{ app.education_level }}', '{{app.id}}', '{{app.resume}}', '{{app.previousjobs}}')">
+                        <i class="fas fa-eye"></i> View Application
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- Application Details Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Application Details</h2>
+        <div class="sidebar-content">
+            <div class="application-header">
+                <h3 id="title-job"></h3>
+            </div>
+
+            <div class="applicant-details">
+                <div class="detail-group">
+                    <h4>Personal Information</h4>
+                    <div class="info-grid">
+                        <p id="name"><i class="fas fa-user"></i> <span></span></p>
+                        <p id="gender"><i class="fas fa-venus-mars"></i> <span></span></p>
+                        <p id="birthdate"><i class="fas fa-birthday-cake"></i> <span></span></p>
+                        <p id="phone"><i class="fas fa-phone"></i> <span></span></p>
+                        <p id="email"><i class="fas fa-envelope"></i> <span></span></p>
+                        <p id="address"><i class="fas fa-map-marker-alt"></i> <span></span></p>
+                    </div>
+                </div>
+
+                <div class="detail-group">
+                    <h4>Professional Information</h4>
+                    <p id="education_level"><i class="fas fa-graduation-cap"></i> <span></span></p>
+                    <p id="previousjobs"><i class="fas fa-briefcase"></i> <span></span></p>
+                </div>
+
+                <div class="detail-group">
+                    <h4>Documents</h4>
+                    <a id="resume" class="resume-link" href="" download="">
+                        <i class="fas fa-file-pdf"></i> Download Resume
+                    </a>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button onclick="updtateAppStatus('accepted')" id="accept-button" class="action-btn accept">
+                    <i class="fas fa-check"></i> Accept
+                </button>
+                <button onclick="updtateAppStatus('rejected')" id="reject-button" class="action-btn reject">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    let currentAppId = null
+    let currentAppId = null;
+    
     function viewapp(title, first_name, last_name, gender, birthdate, phone, email, address, education_level, appId, resume, previous_jobs) {
+        // Update content
         document.getElementById('title-job').innerText = title;
-        document.getElementById('name').innerText = "Name: " + first_name + " " + last_name;
-        document.getElementById('gender').innerText = "Gender: " + gender;
-        document.getElementById('birthdate').innerText = "Birthdate: " + birthdate;
-        document.getElementById('phone').innerText = "Phone: " + phone;
-        document.getElementById('email').innerText = "Email: " + email;
-        document.getElementById('address').innerText = "Address: " + address;
-        document.getElementById('education_level').innerText = "Education Level: " + education_level;
-        document.getElementById('previousjobs').innerText = "Previous Jobs Worked: " + previous_jobs;
-        document.getElementById("reject-button").removeAttribute("hidden")
-        document.getElementById("accept-button").removeAttribute("hidden")
-        document.getElementById("sidebar").removeAttribute("hidden")
-        document.getElementById('resume').setAttribute("href", `/media/${resume}`)
-        document.getElementById('resume').innerText =  "Resume: " + "Download"
-        currentAppId = appId
+        document.getElementById('name').querySelector('span').innerText = first_name + " " + last_name;
+        document.getElementById('gender').querySelector('span').innerText = gender;
+        document.getElementById('birthdate').querySelector('span').innerText = birthdate;
+        document.getElementById('phone').querySelector('span').innerText = phone;
+        document.getElementById('email').querySelector('span').innerText = email;
+        document.getElementById('address').querySelector('span').innerText = address;
+        document.getElementById('education_level').querySelector('span').innerText = education_level;
+        document.getElementById('previousjobs').querySelector('span').innerText = previous_jobs;
+        
+        document.getElementById("reject-button").removeAttribute("hidden");
+        document.getElementById("accept-button").removeAttribute("hidden");
+        
+        const resumeLink = document.getElementById('resume');
+        resumeLink.setAttribute("href", `/media/${resume}`);
+        resumeLink.classList.add('active');
+        
+        currentAppId = appId;
 
+        // Show sidebar with overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+
+        if (!document.querySelector('.sidebar .close-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = closeSidebar;
+            document.querySelector('.sidebar').prepend(closeBtn);
+        }
+
+        document.getElementById('sidebar').classList.add('active');
+        overlay.classList.add('active');
+        overlay.onclick = closeSidebar;
     }
+
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('active');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+        }
+    }
+
     function updtateAppStatus(status) {
         fetch(`/updateAppStatus/${currentAppId}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
-                },
+            },
             body: JSON.stringify({ status: status })
-        } )
+        })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Application status updated succesfully')
+                alert('Application status updated successfully');
+            } else {
+                alert('Failed to update application');
             }
-            else {
-                alert('Failed to update application')
-                console.log(data.success)
-            }
-            location.reload()
-        })
-    }
-    window.onclick = function(event) {
-        const popupOverlay = document.getElementById("sidebar");
-        if (event.target != popupOverlay && event.target != document.getElementById('viewapp')) {
-            popupOverlay.hidden = 'hidden';
-        }
+            location.reload();
+        });
     }
 </script>
 {% endblock %}
