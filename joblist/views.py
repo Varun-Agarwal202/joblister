@@ -11,6 +11,10 @@ from django.views.decorators.http import require_http_methods
 from datetime import datetime
 from django.db.models import Count
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+
+
+
 
 import json
 job_id_saver = 0
@@ -208,6 +212,14 @@ def updatestatus(request, app_id):
             application = JobApply.objects.get(id = app_id)
             application.status = status
             application.save()
+            if status == "accepted":
+                send_mail(
+                "Job Application Accepted",
+                "You're application to" + application.job.job_title + " has been accepted.",
+                "123.varunagarwal@gmail.com",
+                [application.email],
+                fail_silently=False,
+                )
             return JsonResponse({'success': True})
         except JobApply.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Application Not Found'}, )
