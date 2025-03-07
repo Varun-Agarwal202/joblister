@@ -70,8 +70,11 @@ def home(request):
                 context['apps_per_job'] = apps_per_job
                 
             if user.role == "Mentor":
-                mentees = CustomUser.objects.filter(mentor=applicationMentor.objects.filter(author=user).first())
-                context['mentees'] = mentees
+                if applicationMentor.objects.filter(author=user).first() == None:
+                    mentees = []
+                else:
+                    mentees = CustomUser.objects.filter(mentor=applicationMentor.objects.filter(author=user).first())
+                    context['mentees'] = mentees
                 context['meetings'] = MeetingEvent.objects.filter(mentor=user).order_by('-created_at').first()
                 
                 # Add mentee progress tracking
@@ -233,9 +236,7 @@ def deleteapp(request, app_id):
 def mentorapply(request):
      if request.method == "POST":
         form = mentorApply(request.POST)
-        print("Hi2")
         if form.is_valid():
-            print("Hi1")
             application = form.save(commit = False)
             application.author = request.user
             application.status = "pending"

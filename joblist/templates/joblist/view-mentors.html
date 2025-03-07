@@ -11,11 +11,15 @@
     <option value="{{ value }}">{{ display }}</option>
     {% endfor %}
 </select>
-<button style="padding-right: 5px; padding-left: 5px; background: lightblue;" onClick = "sortJobsByType(true)" > Clear </button>
+<button style="padding-right: 5px; padding-left: 5px; background: lightblue;" 
+onClick = "sortJobsByType(true)" > Clear </button>
 </div>
 {% for job in jobs %}
-<div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px; text-overflow: ellipsis;" job-type-data = "{{job.fieldofstudy}}">
-<a href= "#" onclick = "managesidebar('{{job.first_name}}', '{{job.last_name}}', '{{job.finishhighschool}}', '{{job.birthdate}}', '{{job.phone}}', '{{job.email}}', '{{job.address}}', '{{job.education_level}}', '{{job.fieldofstudy}}', '{{job.id}}')" class="text-decoration-none text-reset">
+<div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px; text-overflow: ellipsis;" 
+job-type-data = "{{job.fieldofstudy}}">
+<a href= "#" onclick = "managesidebar('{{job.first_name}}', '{{job.last_name}}', '{{job.finishhighschool}}', 
+'{{job.birthdate}}', '{{job.phone}}', '{{job.email}}', '{{job.address}}', '{{job.education_level}}', 
+'{{job.fieldofstudy}}', '{{job.id}}')" class="text-decoration-none text-reset">
 
     <h3>{{job.job_title}}</h3>
     <h5>{{job.author}}</h5>

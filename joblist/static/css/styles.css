@@ -1,5 +1,6 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&family=Bitter:wght@400;700&display=swap');
 
 /* Apply fonts to different elements */
 body {
@@ -7,7 +8,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', sans-serif; /* Heading fonts */
+  font-family: 'Bitter', sans-serif; /* Heading fonts */
 }
 
 
@@ -83,8 +84,8 @@ body {
   overflow-x: hidden;
 }
 .navbar-custom {
-  background-color: #1E3A8A;
-  margin-left: -10px; /* Dark blue */
+  background-color: #1E3A8A; /* Dark blue */
+  margin-left: -10px; 
   position: fixed;
   top: 0; /* Ensure navbar is at the top */
   left: 0;
@@ -301,13 +302,13 @@ main {
   top: 80px; /* Adjusted to account for navbar */
   right: -800px; /* Start off-screen */
   width: 40%;
-  height: calc(100vh - 80px);
-  background: white;
+  height: calc(100vh - 80px); /* set the height */
+  background: white;  /* set the background color */
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   transition: right 0.3s ease-in-out;
   z-index: 1000;
-  overflow-y: auto;
+  overflow-y: auto; /* allow for scrolling */
 }
 
 .sidebar.active {
@@ -513,7 +514,7 @@ body {
 
 /* Navigation bar styling */
 nav {
-  background-color: #333;
+  background-color: #333; 
   color: #fff;
   padding: 10px 20px;
   display: flex;

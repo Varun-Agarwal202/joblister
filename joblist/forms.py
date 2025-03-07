@@ -53,7 +53,8 @@ jobtypechoices = ( ("Arts", "Arts"),
                         ))
 jobfield = forms.ChoiceField(choices = jobtypechoices, label = "Job Field")
 benefits = forms.CharField(required = False, label = "Benefits")
-job_type = forms.ChoiceField(choices = (("Part-Time", "Part-Time"), ("Full-Time", "Full-Time"), ("Other", "Other")), required = True, label = "Job Type")
+job_type = forms.ChoiceField(choices = (("Part-Time", "Part-Time"), ("Full-Time", "Full-Time"), ("Other", "Other")),
+                              required = True, label = "Job Type")
 job_requirements = forms.CharField(required = True, label = "Job Requirements")
 company_info = forms.CharField(required = False, label = "Company Information (Optional)")
 notes = forms.CharField(required = False, label = "Job Additional Notes (Optional)")

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&family=Bitter:wght@400;700&display=swap');
 
 /* Apply fonts to different elements */
 body {
@@ -6,7 +7,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Bitter', sans-serif;
 }
 .parallax {
     /* The image used */
