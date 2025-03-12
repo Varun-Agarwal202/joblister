@@ -437,7 +437,7 @@ def jobOffer(request):
     elif data.get('status') == 'accept':
         student = CustomUser.objects.get(id = data.get('student_id'))
         student.offers.remove(JobListing.objects.get(id = data.get('job_id')))
-        student_application = JobApply.objects.get(creater = student)
+        student_application = JobApply.objects.get(creater = student).first()
         student_application.job = JobListing.objects.get(id = data.get('job_id'))
         student_application.status = 'accepted'
         student.save()
