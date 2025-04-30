@@ -1,84 +1,202 @@
 {% extends "joblist/base.html" %}
-
+{% load static %}
 {% block content %}
 {% if displayform == False %}
-<h1>List of Job Options</h1>
-<div class = "sort-container">
-<span>Sort By Field: </span> 
-<select id="job-type-dropdown" onchange="sortJobsByType()">
-    <option value="">Select Job Type</option>
-    {% for value, display in jobtypechoices %}
-    <option value="{{ value }}">{{ display }}</option>
-    {% endfor %}
-</select>
-<button style="padding-right: 5px; padding-left: 5px; background: lightblue;" onClick = "sortJobsByType(true)" > Clear </button>
-</div>
-{% for job in jobs %}
-<div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px;" job-type-data = "{{job.jobfield}}">
-<a href= "#" onclick = "managesidebar(' {{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}')" class="text-decoration-none text-reset">
+<div class="listings-container">
+    <!-- Header Section -->
+    <div class="listings-header">
+        <h1>Available Positions</h1>
+        <div class="filter-section">
 
-    <h3>{{job.job_title}}</h3>
-    <h5>{{job.author}}</h5>
-    <p>{{job.description|truncatewords:20}}</p>
-    <p>{{job.salary}}</p>
-    <p id = "job-type-data">{{job.jobfield}}</p>
-    <p class = "text-muted">{{job.date_posted}}</p>
-</a>
-</div>
-{% endfor %}
-<div class = "sidebar" id = "sidebar">
-    <h2>Job Details</h2>
-    <h4 id = "title-job"></h4>
-    <h5 id = "title-company"></h5>
-    <p id = "title-author"></p>
-    <p id = "job-description">Click on job to view details</p>
-    <p id = "job-type"></p>
-    <p id = "job-salary"></p>
-    <form class = "make-hidden" method = "POST" action = "submit-application/">
-        {% csrf_token %}
-    <button id = 'apply-button' type = "submit" hidden = "hidden"> Apply </button>
-    <input id = "apply" name = "job-id" hidden = "hidden" >
-</form>
+            <div class="search-filter">
+                <span>Filter by Field:</span>
+                <select id="job-type-dropdown" onchange="sortJobsByType()">
+                    <option value="">All Job Types</option>
+                    {% for value, display in jobtypechoices %}
+                    <option value="{{ value }}">{{ display }}</option>
+                    {% endfor %}
+                </select>
+                <button class="clear-filter" onClick="sortJobsByType(true)">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs Grid -->
+    <div class="jobs-grid">
+        {% for job in jobs %}
+        <div class="job-card" job-type-data="{{job.jobfield}}">
+            <div class="job-card-content" onclick="managesidebar('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}', '{{job.date_posted}}', '{{job.benefits}}', '{{job.job_requirements}}', '{{job.job_type}}', '{{job.company_info}}', '{{job.notes}}')">
+                <div class="job-header">
+                    <h3>{{job.job_title}}</h3>
+                    <span class="company-name">{{job.company_name}}</span>
+                </div>
+                <div class="job-details">
+                    <span class="job-location">
+                        <i class="fas fa-map-marker-alt"></i> {{job.location}}
+                    </span>
+                    <span class="job-salary">
+                        <i class="fas fa-money-bill-wave"></i> {{job.salary}}
+                    </span>
+                    <span class="job-type">
+                        <i class="fas fa-briefcase"></i> {{job.jobfield}}
+                    </span>
+                </div>
+                <p class="job-description">{{job.description|truncatechars:150}}</p>
+                <div class="job-footer">
+                    <span class="posted-date">
+                        <i class="far fa-clock"></i> Posted {{job.date_posted}}
+                    </span>
+                    <button class="view-details">View Details</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Job Details</h2>
+        <div class="sidebar-content">
+            <div class="job-title-section">
+                <h3 id="title-job"></h3>
+                <h4 id="title-company"></h4>
+            </div>
+            
+            <div class="job-info-section">
+                <div class="info-item">
+                    <i class="fas fa-user"></i>
+                    <p id="title-author"></p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p id="job-location"></p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-briefcase"></i>
+                    <p id="job-type"></p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <p id="job-salary"></p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p id="job-jobfield"></p>
+                </div>
+            </div>
+
+            <div class="job-description-section">
+                <h4>Description</h4>
+                <p id="job-description"></p>
+            </div>
+
+            <div class="job-details-section">
+                <div class="details-group">
+                    <h4>Requirements</h4>
+                    <p id="job-jobrequirements"></p>
+                </div>
+                <div class="details-group">
+                    <h4>Benefits</h4>
+                    <p id="job-benefits"></p>
+                </div>
+                <div class="details-group">
+                    <h4>Company Information</h4>
+                    <p id="job-companyinfo"></p>
+                </div>
+                <div class="details-group">
+                    <h4>Additional Notes</h4>
+                    <p id="job-notes"></p>
+                </div>
+            </div>
+
+            <form class="application-form" method="POST" action="submit-application/">
+                {% csrf_token %}
+                <input id="apply" name="job-id" hidden="hidden">
+                <button id="apply-button" type="submit" hidden="hidden">Apply Now</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
-    function managesidebar(title, author, description, salary, company, id, type) {
+    function managesidebar(location, title, author, description, salary, company, id, type, jobfield, job_type, requirements, benefits, company_info, notes) {
         document.getElementById('title-job').innerText = title;
-        document.getElementById('title-company').innerText = "Company: " + company;
-        document.getElementById('title-author').innerText = "Author: " + author;
-        document.getElementById('job-description').innerText = "Description: " + description;
+        document.getElementById('title-company').innerText = company;
+        document.getElementById('title-author').innerText = "Posted by: " + author;
+        document.getElementById('job-description').innerText = description;
         document.getElementById('job-type').innerText = "Type: " + type;
         document.getElementById('job-salary').innerText = "Salary: " + salary;
+        document.getElementById('job-location').innerText = "Location: " + location;
+        document.getElementById('job-jobfield').innerText = "Field: " + jobfield;
+        document.getElementById('job-jobrequirements').innerText = requirements;
+        document.getElementById('job-benefits').innerText = benefits;
+        document.getElementById('job-companyinfo').innerText = company_info;
+        document.getElementById('job-notes').innerText = notes;
+        
         document.getElementById('apply-button').removeAttribute("hidden");
-        console.log(id)
         document.getElementById('apply').setAttribute("value", id);
+
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+
+        if (!document.querySelector('.sidebar .close-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = closeSidebar;
+            document.querySelector('.sidebar').prepend(closeBtn);
+        }
+
+        document.getElementById('sidebar').classList.add('active');
+        overlay.classList.add('active');
+        overlay.onclick = closeSidebar;
     }
+
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('active');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+        }
+    }
+
     function sortJobsByType(clear = false) {
-        var type = document.getElementById("job-type-dropdown").value
-        var jobs = document.querySelectorAll('.job-box');
-        console.log(type)
-        jobs.forEach(function(job) {
+        const type = document.getElementById("job-type-dropdown").value;
+        const jobs = document.querySelectorAll('.job-card');
+        
+        jobs.forEach(job => {
             if (!clear) {
-                var jobType = job.getAttribute('job-type-data');
-                console.log(job )
-                if (type === "" || jobType === type) {
-                    job.style.display = "block"; // Show the job
-                } else {
-                    job.style.display = "none"; // Hide the job
-                }
-            }
-            else {
+                const jobType = job.getAttribute('job-type-data');
+                job.style.display = (type === "" || jobType === type) ? "block" : "none";
+            } else {
                 job.style.display = "block";
             }
         });
-    }   
+    }
 </script>
 {% else %}
-<form method="POST" action="">
-    {% csrf_token %}  
-    {{ form.as_p }}
-    
-    <button type="submit">Submit Application</button>
-</form>
+<div class="application-form-container">
+    <form method="POST" action="" enctype="multipart/form-data">
+        <div class="user-info">
+            <h2>Your Information</h2>
+            <p id="name">Name: {{ user.first_name|add:" "|add:user.last_name }}</p>
+            <p id="gender">Gender: {{user.gender}}</p>
+            <p id="birthdate">Birthday: {{user.birthday}}</p>
+            <p id="phone">Phone Number: {{user.phone}}</p>
+            <p id="email">Email: {{user.email}}</p>
+            <p id="address">Address: {{user.address}}</p>
+        </div>
+        {% csrf_token %}
+        <div class="form-fields">
+            {{ form.as_p }}
+        </div>
+        <input id="apply" name="job-id" hidden="hidden" value="{{job_id}}">
+        <button type="submit" class="submit-application">Submit Application</button>
+    </form>
+</div>
 {% endif %}
 {% endblock content %}

@@ -1,0 +1,94 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+<h1>Job Offers</h1>
+{% for offer in offers %}
+<div style = "width: 40%; float: left; clear: both; border: 1px solid black; padding: 10px; margin: 10px;">
+    <h2>{{ offer.job_title }}</h2><h2> {{ offer.company_name }}</h2> 
+    <button class = "btn btn-primary" onclick = "viewbtn('{{ offer.id }}', '{{ offer.job_title }}', '{{ offer.company_name }}', '{{ offer.author }}', '{{ offer.description }}', '{{ offer.location }}', '{{ offer.salary }}', '{{ offer.jobfield }}', '{{ offer.job_type }}', '{{ offer.requirements }}', '{{ offer.benefits }}', '{{ offer.company_info }}', '{{ offer.notes }}')">View Offer</button>
+</div>
+{% endfor %}
+<div class = "sidebar" id = "sidebar">
+    <h2>Job Details</h2>
+    <h4 id = "title-job"></h4>
+    <h5 id = "title-company"></h5>
+    <p id = "title-author"></p>
+    <p id = "job-description">Click on job to view details</p>
+    <p id = "job-location"></p>
+    <p id = "job-type"></p>
+    <p id = "job-salary"></p>
+    <p id = "job-jobfield"></p>
+    <p id = "job-jobtype"></p>
+    <p id = "job-jobrequirements"></p>
+    <p id = "job-benefits"></p>
+    <p id = "job-companyinfo"></p>
+    <p id = "job-notes"></p>
+    <input type = "hidden" id = "job-id">
+    {% csrf_token %}
+    <button onclick = "update_status('accept', '{{ student_id }}')" class = "btn btn-primary" id = 'apply-button' type = "submit" hidden = "hidden">Accept Offer</button>
+    <button onclick = "update_status('reject', '{{ student_id }}')" class = "btn btn-danger" id = 'reject-button' type = "submit" hidden = "hidden">Reject Offer</button>
+</div>
+<script>
+    function viewbtn(id, job_title, company_name, author, description, location, salary, jobfield, job_type, requirements, benefits, company_info, notes) {
+        document.getElementById('sidebar').removeAttribute("hidden");
+        document.getElementById('title-job').innerText = "Job Title: " + job_title;
+        document.getElementById('title-company').innerText = "Company Name: " + company_name;
+        document.getElementById('title-author').innerText = "Author: " + author;
+        document.getElementById('job-description').innerText = "Description: " + description;
+        document.getElementById('job-location').innerText = "Location: " + location;
+        document.getElementById('job-salary').innerText = "Salary: " + salary;
+        document.getElementById('job-jobfield').innerText = "Job Field: " + jobfield;
+        document.getElementById('job-jobtype').innerText = "Job Type: " + job_type;
+        document.getElementById('job-jobrequirements').innerText = "Job Requirements: " + requirements;
+        document.getElementById('job-benefits').innerText = "Job Benefits: " + benefits;
+        document.getElementById('job-companyinfo').innerText = "Company Information: " + company_info;
+        document.getElementById('job-notes').innerText = "Additional Job Notes: " + notes;
+        document.getElementById('job-id').value = id;
+        document.getElementById('apply-button').removeAttribute("hidden");
+        document.getElementById('reject-button').removeAttribute("hidden");
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+        if (!document.querySelector('.sidebar .close-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = closeSidebar;
+            document.querySelector('.sidebar').prepend(closeBtn);
+        }
+        document.getElementById('sidebar').classList.add('active');
+        overlay.classList.add('active');
+
+        overlay.onclick = closeSidebar;
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('active');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+    }
+    }
+    function update_status(status, student_id) {
+        var id = document.getElementById('job-id').value;
+        fetch(`/jobOffer/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ job_id: id, status: status, student_id: student_id})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Job offer updated successfully');
+                window.location.reload();
+            } else {
+                alert('Failed to update job offer');
+            }
+        });
+    }
+    
+</script>
+{% endblock %}

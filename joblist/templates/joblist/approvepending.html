@@ -1,0 +1,119 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+<h1> Review Mentors!</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Did you finish High School?</th>
+            <th>Date Of Birth</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Education Level</th>
+            <th>Author</th>
+            <th>More Information</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr class="table-body">
+            <td class="table-text">{{ job.first_name }}</td>
+            <td class="table-text">{{ job.last_name }}</td>
+            <td class="table-text">{{ job.finishhighschool }}</td>
+            <td class="table-text">{{ job.birthdate }}</td>
+            <td class="table-text">{{ job.phone }}</td>
+            <td class="table-text">{{ job.email }}</td>
+            <td class="table-text">{{ job.address }}</td>
+            <td class="table-text">{{ job.education_level }}</td>
+            <td class="table-text">{{ job.author }}</td>
+            <td class="more-info">
+                <button onclick="moreinfo('{{ job.first_name }}', '{{ job.last_name }}', '{{ job.finishhighschool }}', '{{ job.birthdate }}', '{{ job.phone }}', '{{ job.email }}', '{{ job.address }}', '{{ job.education_level }}', '{{job.author}}', '{{job.id}}', '{{job.essay}}', '{{job.fieldofstudy}}')">More Info</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup">
+        <span class="popup-close" onclick="closePopup()">&times;</span>
+        <div class="popup-content">
+        <h2 id="popup-name"></h2>
+        <p><strong>First Name: </strong> </p>
+        <p id="popup-fname">hello</p>
+        <p><strong>Last Name:</strong> </p>
+        <p id="popup-lname"></p>
+        <p><strong>Finish High School:</strong></p>
+        <p id="popup-fhs"></p>
+        <p><strong>Birthdate:</strong> </p>
+        <p id="popup-bday"></p>
+        <p><strong>Phone Number:</strong> </p>
+        <p id="popup-phone"></p>
+        <p><strong>Email:</strong> </p>
+        <p id="popup-email"></p>
+        <p><strong>Address:</strong> </p>
+        <p id="popup-address"></p>
+        <p><strong>Education Level:</strong> </p>
+        <p id="popup-education"></p>
+        <p><strong>Author:</strong> </p>
+        <p id="popup-author"></p>
+        <p id= "popup-id" hidden = "hidden"></p>
+        <p><strong>Reason for Application:</strong></p>
+        <p id="popup-essay"></p>
+        <p><strong>Field Of Study:</strong></p>
+        <p id="popup-fos"></p>
+        </div>
+        <button class = "popup-approved" onclick = "updateStatus('approve')">Approve</button>
+        <button class = "popup-approved" onclick = "updateStatus('reject')">Reject</button>
+    </div>
+</div>
+</div>
+<script>
+    function moreinfo(first_name, last_name, finishhighschool, birthdate, phone, email, address, education_level, author, id, essay, fos) {
+        popupOverlay.style.display = 'block';
+        document.getElementById("popup-name").innerText = first_name + ' ' + last_name;
+        document.getElementById("popup-fname").innerText = first_name;
+        document.getElementById("popup-lname").innerText = last_name;
+        document.getElementById("popup-fhs").innerText = finishhighschool;
+        document.getElementById("popup-bday").innerText = birthdate;
+        document.getElementById("popup-phone").innerText = phone;
+        document.getElementById("popup-email").innerText = email;
+        document.getElementById("popup-id").innerText = id;
+        document.getElementById("popup-address").innerText = address;
+        document.getElementById("popup-education").innerText = education_level;
+        document.getElementById("popup-author").innerText = author;
+        document.getElementById("popup-essay").innerText = essay;
+        document.getElementById("popup-fos").innerText = fos;
+
+
+    }
+    function closePopup() {
+        popupOverlay.style.display = 'none';
+    }
+    function updateStatus(status) {
+        id = document.getElementById("popup-id").innerText
+        fetch(`/updateMentorStatus/${id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+            body: JSON.stringify({ status: status })
+        } )
+        .then(response => response.json())
+        .then(data => {
+            location.reload()
+        })
+    }
+    window.onclick = function(event) {
+        const popupOverlay = document.getElementById("popupOverlay");
+        if (event.target == popupOverlay) {
+            closePopup();
+        }
+    }
+</script>
+{% endblock content %} 

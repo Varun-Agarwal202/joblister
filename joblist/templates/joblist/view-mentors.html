@@ -1,0 +1,158 @@
+{% extends "joblist/base.html" %}
+
+{% block content %}
+{% if displayform == False %}
+<h1>List of Mentor Options</h1>
+<div class = "sort-container">
+<span>Sort By Field: </span> 
+<select id="job-type-dropdown" onchange="sortJobsByType()">
+    <option value="">Select Mentor Preference</option>
+    {% for value, display in jobtypechoices %}
+    <option value="{{ value }}">{{ display }}</option>
+    {% endfor %}
+</select>
+<button style="padding-right: 5px; padding-left: 5px; background: lightblue;" 
+onClick = "sortJobsByType(true)" > Clear </button>
+</div>
+{% for job in jobs %}
+<div class=' px-4 py-4 bg-lightblue job-box' style= "width:300px; text-overflow: ellipsis;" 
+job-type-data = "{{job.fieldofstudy}}">
+<a href= "#" onclick = "managesidebar('{{job.first_name}}', '{{job.last_name}}', '{{job.finishhighschool}}', 
+'{{job.birthdate}}', '{{job.phone}}', '{{job.email}}', '{{job.address}}', '{{job.education_level}}', 
+'{{job.fieldofstudy}}', '{{job.id}}')" class="text-decoration-none text-reset">
+
+    <h3>{{job.job_title}}</h3>
+    <h5>{{job.author}}</h5>
+    <p style = "word-wrap: break-word">{{job.description|truncatechars:80}}</p>
+    <p>{{job.salary}}</p>
+
+    <p id = "job-type-data">{{job.jobfield}}</p>
+    <p class = "text-muted">{{job.date_posted}}</p>
+</a>
+</div>
+{% endfor %}
+<div class = "sidebar" id = "sidebar">
+    <h2>Mentor Details</h2>
+    <h4 id = "first_name"></h4>
+    <h5 id = "last_name"></h5>
+    <p id = "finishhighschool"></p>
+    <p id = "birthdate">Click on job to view details</p>
+    <p id = "phone"></p>
+    <p id = "email"></p>
+    <p id = "address"></p>
+    <p id = "education_level"></p>
+    <p id = "fos"></p>
+
+    <form class = "make-hidden" method = "POST" action = "submit-mentor/">
+        {% csrf_token %}
+    <button id = 'apply-button' type = "submit" hidden = "hidden"> Request </button>
+    <input id = "job_id" name = "job_id" hidden = "hidden" >
+</form>
+</div>
+
+{% if has_mentor %}
+<div class="modal fade" id="mentorWarningModal" tabindex="-1" aria-labelledby="mentorWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mentorWarningModalLabel">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                You currently have {{ current_mentor }} as your mentor. Selecting a new mentor will override your current mentor. Do you want to continue?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='/'">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="continueToMentors()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Show the warning modal when page loads if user has a mentor
+    window.onload = function() {
+        var mentorWarningModal = new bootstrap.Modal(document.getElementById('mentorWarningModal'));
+        mentorWarningModal.show();
+        console.log('hi')
+    }
+
+    function continueToMentors() {
+        // Close the modal and stay on the page
+        var mentorWarningModal = bootstrap.Modal.getInstance(document.getElementById('mentorWarningModal'));
+        mentorWarningModal.hide();
+    }
+    </script>
+    {% endif %}
+<script>
+
+    function managesidebar(first_name, last_name, finishhighschool, birthdate, phone, email, address, education_level, fos, id) {
+        document.getElementById('first_name').innerText = first_name + " " + last_name;
+        document.getElementById('finishhighschool').innerText = "Finished High school: " + finishhighschool;
+        document.getElementById('birthdate').innerText = "Birthdate: " + birthdate;
+        document.getElementById('phone').innerText = "Phone: " + phone;
+        document.getElementById('email').innerText = "Email: " + email;
+        document.getElementById('address').innerText = "Address: " + address;
+        document.getElementById('education_level').innerText = "Education Level: " + education_level;
+        document.getElementById('fos').innerText = "Field Of Study: " + fos;
+        document.getElementById('apply-button').removeAttribute("hidden");
+        console.log(id)
+        document.getElementById('job_id').setAttribute("value", id);
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+        if (!document.querySelector('.sidebar .close-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = closeSidebar;
+            document.querySelector('.sidebar').prepend(closeBtn);
+        }
+        document.getElementById('sidebar').classList.add('active');
+        overlay.classList.add('active');
+
+        overlay.onclick = closeSidebar;
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('active');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+    }
+    
+    }
+    function sortJobsByType(clear = false) {
+        var type = document.getElementById("job-type-dropdown").value
+        var jobs = document.querySelectorAll('.job-box');
+        console.log(type)
+        jobs.forEach(function(job) {
+            if (!clear) {
+                var jobType = job.getAttribute('job-type-data');
+                console.log(job )
+                if (type === "" || jobType === type) {
+                    job.style.display = "block"; // Show the job
+                } else {
+                    job.style.display = "none"; // Hide the job
+                }
+            }
+            else {
+                job.style.display = "block";
+            }
+        });
+    }   
+</script>
+{% else %}
+<form method="POST" action="" enctype="multipart/form-data">
+    <p id="name">Name: {{ user.first_name|add:" "|add:user.last_name }}   </p>
+    <p id="gender">Gender: {{user.gender}}</p>
+    <p id="birthdate">Birthday: {{user.birthday}}</p>
+    <p id="phone">Phone Number: {{user.phone}}</p>
+    <p id="email">Email: {{user.email}}</p>
+    <p id="address">Address: {{user.address}}</p>
+    {% csrf_token %}  
+    {{ form.as_p }}
+    <input id = "apply" name = "job-id" hidden = "hidden" value = {{job_id}}>
+    <button type="submit">Submit Application</button>
+</form>
+{% endif %}
+{% endblock content %}

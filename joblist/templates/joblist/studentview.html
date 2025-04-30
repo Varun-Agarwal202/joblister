@@ -18,16 +18,17 @@
     </div>
     {% endfor %}
 </div>
-<p class = "options">Options:</p>
-<ul>
-    {% if not user.is_authenticated %}
-    <li><a href = "{% url 'account_signup' %}"> Sign Up </a></li>
-    <li>   <a href = "{% url 'account_login' %}"> Log In </a></li>
-
-{% endif %}
-<li>  <a href = "{% url 'account_reset_password' %}"> Reset Password </a></li>
-    
-</ul>
+<div style = "margin-top: 20px;">
+    <h3>Mentor Information</h3>
+    <br>
+    {% if mentor %}
+    <p>Name: {{ mentor.first_name }} {{ mentor.last_name }}</p>
+    <p>Email: {{ mentor.email }}</p>
+    <p>Phone: {{ mentor.phone }}</p>
+    {% else %}
+    <p>No mentor assigned</p>
+    {% endif %}
+</div>
 <script>
     function deleteapp(app_id) {
         fetch(`/deleteApp/${app_id}/`, {
