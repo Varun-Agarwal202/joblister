@@ -1,6 +1,12 @@
-/* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Nunito:wght@400;700&family=Bitter:wght@400;700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  /* overflow-x: hidden; /* Be cautious with this, might hide desired scrollbars on body */
+}
 
 /* Apply fonts to different elements */
 body {
@@ -11,7 +17,6 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Bitter', sans-serif; /* Heading fonts */
 }
 
-
 .admin-buttons {
   display: flex;
   gap: 20px;
@@ -21,10 +26,23 @@ h1, h2, h3, h4, h5, h6 {
   flex: 1;
   text-align: center;
 }
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
+  body {
+    width: 150% !important;
+    height: 150% !important;
+    transform-origin: top left !important;
+    transform: scale(75%) !important;
+  }
   .navbar-nav .nav-link {
     font-size: 14px;
     padding: 0.5rem 0.75rem;
+    margin-left: -100px !important;
+  }
+  nav {
+    height: 200px !important;
+  }
+  nav-item {
+    margin-left: -100px !important;
   }
   .navbar-brand {
     font-size: 18px;
@@ -95,22 +113,26 @@ body {
   z-index: 1000; /* Ensure navbar stays on top */
   height: 70px; /* Increased navbar height */
 }
+
 .navbar-custom .navbar-brand {
   color: #FFFFFF;
   font-size: 2.5rem; /* Larger font size for the brand */
   font-weight: bold;
   margin: 0;
 }
+
 .navbar-custom .nav-link {
   color: #FFFFFF;
   text-decoration: none;
   padding: 0.5rem;
 }
+
 .navbar-custom .nav-link:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-color: #3B82F6; /* Light dark blue underline */
 }
+
 .btn-get-started {
   color: #FFFFFF;
   background-color: #4F46E5; /* Bright blue */

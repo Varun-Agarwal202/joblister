@@ -14,13 +14,13 @@ from pathlib import Path
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_FROM_EMAIL = '123.varunagarwal@gmail.com'
-SERVER_EMAIL = '123.varunagarwal@gmail.com'
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = '123.varunagarwal@gmail.com'
-EMAIL_HOST_PASSWORD = 'Demand123+'
+EMAIL_HOST_USER = 'pathfinderrequest@gmail.com'
+EMAIL_HOST_PASSWORD = 'fvjv mdve ygyi hfmo'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -40,7 +40,6 @@ SECRET_KEY = 'django-insecure-#f)34tp9+4k=fyfg0n@2@(h$wzlb=n0p*4vr)wk+rev)j6#ww5
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ALLOWED_HOSTS = []
 
 LOGIN_REDIRECT_URL = "/"
@@ -61,13 +60,26 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'joblist',
     'accessibility',
 ]
-
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'APP': {
+            'client_id': '16728508667-g39mebbue7flbtgldliorbrbn67pb7u4.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        },
+    }
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -136,9 +148,28 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+LANGUAGES = [
+    ('en', 'English'),
+    ('es', 'Spanish'),
+    ('hi', 'Hindi'),
+    ('fr', 'French'),
+    ('de', 'German'),
+    ('zh-hans', 'Simplified Chinese'),
+    ('ja', 'Japanese'),
+    ('ar', 'Arabic'),
+    ('pt', 'Portuguese'),
+    ('ru', 'Russian'),
+    ('ko', 'Korean'),
+    ('it', 'Italian'),
+    ('nl', 'Dutch'),
+]
+
 TIME_ZONE = 'UTC'
 
+
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 
@@ -153,3 +184,10 @@ ACCOUNT_EMAIL_VERIFACTION = "none"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_QUERY_EMAIL = True
+LOCALE_PATHS = ( os.path.join(BASE_DIR, 'locale'), )

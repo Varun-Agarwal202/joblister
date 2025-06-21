@@ -31,4 +31,5 @@ urlpatterns= [
     path('job-offers/', views.job_offers, name="job-offers"),
     path('edit-profile/', views.edit_profile, name="edit-profile"),
     path('sources/', views.sources, name="sources"),
+    path('chatbot/', views.chatbot, name='chatbot'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

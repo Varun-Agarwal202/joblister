@@ -6,8 +6,8 @@
     {% if not SOCIALACCOUNT_ONLY %}
         {% element hr %}
         {% endelement %}
-        {% element h2 %}
-            {% translate "Or use a third-party" %}
+        {% element p %}
+            {% blocktranslate %}Or sign in with one of the following providers:{% endblocktranslate %}
         {% endelement %}
     {% endif %}
     {% include "socialaccount/snippets/provider_list.html" with process="login" %}

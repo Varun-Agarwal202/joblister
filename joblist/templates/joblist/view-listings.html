@@ -164,6 +164,24 @@
         }
     }
 
+    // Function to get URL parameter by name
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    // Set the dropdown value based on URL parameter when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const fieldParam = getUrlParameter('field');
+        if (fieldParam) {
+            const dropdown = document.getElementById('job-type-dropdown');
+            dropdown.value = fieldParam;
+            sortJobsByType(); // Apply the filter
+        }
+    });
+
     function sortJobsByType(clear = false) {
         const type = document.getElementById("job-type-dropdown").value;
         const jobs = document.querySelectorAll('.job-card');
@@ -173,6 +191,7 @@
                 const jobType = job.getAttribute('job-type-data');
                 job.style.display = (type === "" || jobType === type) ? "block" : "none";
             } else {
+                document.getElementById("job-type-dropdown").value = "";
                 job.style.display = "block";
             }
         });

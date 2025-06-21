@@ -10,11 +10,13 @@
 <div style = "display: flex; align-items: center;justify-content: center;" class = "header-container">
 <h1 style = "margin-right: 20px;">Pathfinder</h1>
 <img src="{% static 'images/favicon.ico' %}" alt="Pathfinder Logo" class="logo" width = 32 height = 32 />
+
 </div> 
 <div class = "login_wrap">
     {% element h1 %}
         {% trans "Sign In" %}
     {% endelement %}
+    
     {% if not SOCIALACCOUNT_ONLY %}
         {% setvar link %}
             <a href="{{ signup_url }}">
@@ -29,8 +31,10 @@
         {% element form form=form method="post" class="p_reset" action=login_url tags="entrance,login" %}
             {% slot body %}
                 {% csrf_token %}
+                <div class = "fields">
                 {% element fields form=form unlabeled=True %}
                 {% endelement %}
+            </div>
                 {{ redirect_field }}
             {% endslot %}
             {% slot actions %}
@@ -55,10 +59,9 @@
                 {% endelement %}
             {% endif %}
         {% endelement %}
+
     {% endif %}
-    {% if SOCIALACCOUNT_ENABLED %}
         {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
-    {% endif %}
 </div>
 {% endblock content %}
 {% block extra_body %}

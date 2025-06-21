@@ -1,0 +1,35 @@
+{% extends "joblist/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>Chat with AI</h2>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        {% for message in chat_history %}
+            <div class="message {% if message.type == 'user' %}user-message{% else %}ai-message{% endif %}">
+                {{ message.content | safe }}
+            </div>
+        {% endfor %}
+    </div>
+    <div id="typing-indicator" class="typing-indicator" style="display: none;">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <form method="post" action="{% url 'chatbot' %}" class="chat-input" id="chat-form">
+        {% csrf_token %}
+        <textarea name="user_input" id="user-input" placeholder="Type your message..." required></textarea>
+        <button type="submit" id="send-button">Send</button>
+    </form>
+</div>
+
+<script>
+    // Pass the URL to JavaScript
+    const chatbotUrl = "{% url 'chatbot' %}";
+</script>
+<script src="{% static 'js/chat.js' %}"></script>
+{% endblock %}

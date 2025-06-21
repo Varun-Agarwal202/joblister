@@ -1,6 +1,6 @@
 {% extends "joblist/base.html" %}
 {% load static %}
-
+{% load i18n %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/homepage.css' %}">
 <!-- Add Chart.js CDN -->
@@ -138,6 +138,78 @@
                 {% endif %}
             </div>
         </div>
+        <!-- Military Section -->
+        <div class="military-section" style="margin: 20px 0; padding: 20px; background-color: #1b2b3a; border-radius: 8px; text-align: center;">
+            <h2 style="color: #ffffff; margin-bottom: 15px;">Considering a Military Career?</h2>
+            <a href="https://www.goarmy.com/info?iom=CKPQ-25NMTF_N_PSEA_71700000120419043_700000002644556_43700081016092472_58700008806476029_join+military&gclid=CjwKCAjw47i_BhBTEiwAaJfPplIXQx2q3jGMBQosXJ7cZxKMWNT7n5v94Gi_NpVBxA44BQPvhC-oXhoCkpQQAvD_BwE&gclsrc=aw.ds" 
+               class="btn btn-primary" 
+               style="background-color: #4a5568; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                Join Here <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <!-- Career Fields Grid -->
+        <div class="career-fields-grid">
+            <div style = "margin-top: 30px;" class="career-section arts-section" data-field="Arts">
+                <h2>Arts</h2>
+            </div>
+            
+            <div style = "margin-top: 30px;" class="career-section business-section" data-field="Business">
+                <h2>Business</h2>
+            </div>
+            
+            <div style = "margin-top: 30px;" class="career-section communications-section" data-field="Communications">
+                <h2>Communications</h2>
+            </div>
+            
+            <div style = "margin-top: 30px;" class="career-section education-section" data-field="Education">
+                <h2>Education</h2>
+            </div>
+            
+            <div class="career-section healthcare-section" data-field="Healthcare">
+                <h2>Healthcare</h2>
+            </div>
+            
+            <div class="career-section hospitality-section" data-field="Hospitality">
+                <h2>Hospitality</h2>
+            </div>
+            
+            <div class="career-section it-section" data-field="Information Technology">
+                <h2>Information Technology</h2>
+            </div>
+            
+            <div class="career-section law-section" data-field="Law Enforcement">
+                <h2>Law Enforcement</h2>
+            </div>
+            
+            <div class="career-section marketing-section" data-field="Sales and Marketing">
+                <h2>Sales & Marketing</h2>
+            </div>
+            
+            <div class="career-section science-section" data-field="Science">
+                <h2>Science</h2>
+            </div>
+            
+            <div class="career-section transportation-section" data-field="Transportation">
+                <h2>Transportation</h2>
+            </div>
+        </div>
+
+        <script>
+        document.querySelectorAll('.career-section').forEach(section => {
+            section.addEventListener('click', function() {
+                const field = this.dataset.field;
+                window.location.href = `{% url 'view-listings' %}?field=${encodeURIComponent(field)}`;
+            });
+
+            section.addEventListener('mouseover', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            section.addEventListener('mouseout', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        </script>
     </div>
 
     {% elif user.role == "Mentor" %}
@@ -256,115 +328,154 @@
     {% else %}
     <div class="user-dashboard">
         <h2>Welcome back, {{user.first_name}}!</h2>
-        <div class="dashboard-stats">
-            <!-- Add user-specific stats and quick actions -->
-        </div>
     </div>
 {% endif %}
 {% else %}
-    <img src="{% static 'images/logo.png' %}" alt="PathFinder Logo" class="logo pathfinder-logo" style = "margin-top: -30px;">
-<!-- Hero Section -->
 
-<div style = "margin-left: -10px;" class="hero-section">
-    <div class="gradient-overlay"></div>
-    <div class="hero-content">
-        <h1 class="hero-title">Find Your Path to Success</h1>
-        <p class="hero-subtitle">Connect with mentors, discover opportunities, and build your career</p>
-        <div class="hero-buttons">
-            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg pulse">Get Started</a>
-            <a href="{% url 'view-listings' %}" class="btn btn-outline-light btn-lg">Browse Jobs</a>
+
+<!-- New Parallax Hero Section -->
+<div class="parallax-hero-container">
+    <div class="parallax-decorative-graphics">
+        <div class="graphic-shape shape-1"></div>
+        <div class="graphic-shape shape-2"></div>
+\    </div>
+    <div class="hero-content-wrapper">
+        <div class="hero-content">
+            <h1 class="hero-title">{% trans "Find Your Path to Success" %}</h1>
+            <p class="hero-subtitle">{% trans "Connect with mentors, discover opportunities, and build your career" %}</p>
+            <div class="hero-buttons">
+                <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg pulse">{% trans "Get Started" %}</a>
+                <a href="{% url 'view-listings' %}" class="btn btn-outline-light btn-lg">{% trans "Browse Jobs" %}</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'images/career.svg' %}" alt="{% trans 'Career illustration' %}">
         </div>
     </div>
-    <div class="hero-image">
-        <img src="{% static 'images/career.svg' %}" alt="Career illustration">
-    </div>
 </div>
-    
+<!-- End New Parallax Hero Section -->
+
 <!-- Wave Separator -->
-<div style = "margin-left: -10px;" class="wave-separator">
+<div style="margin-left: -10px;" class="wave-separator">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-        <path fill="#1E3A8A" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+        <defs>
+            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#1b89f0;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        <path fill="url(#waveGradient)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
     </svg>
 </div>
 
 <!-- Features Section -->
 <div class="features-section">
-    <h2 class="section-title">Why Choose PathFinder?</h2>
+    <h2 class="section-title">{% trans "Why Choose PathFinder?" %}</h2>
     <div class="features-grid">
         <div class="feature-card">
             <div class="feature-icon-wrapper">
-                <i class="fas fa-briefcase feature-icon"></i>
+                <i class="fas fa-briefcase"></i>
             </div>
-            <h3>Job Opportunities</h3>
-            <p>Access thousands of curated job listings from top employers</p>
+            <h3>{% trans "Job Opportunities" %}</h3>
+            <p>{% trans "Access thousands of curated job listings from top employers" %}</p>
         </div>
+        
         <div class="feature-card">
             <div class="feature-icon-wrapper">
-                <i class="fas fa-users feature-icon"></i>
+                <i class="fas fa-users"></i>
             </div>
-            <h3>Mentorship</h3>
-            <p>Connect with experienced professionals in your field</p>
+            <h3>{% trans "Mentorship" %}</h3>
+            <p>{% trans "Connect with experienced professionals in your field" %}</p>
         </div>
+        
         <div class="feature-card">
             <div class="feature-icon-wrapper">
-                <i class="fas fa-graduation-cap feature-icon"></i>
+                <i class="fas fa-graduation-cap"></i>
             </div>
-            <h3>Career Growth</h3>
-            <p>Learn and develop with personalized guidance</p>
+            <h3>{% trans "Career Growth" %}</h3>
+            <p>{% trans "Learn and develop with personalized guidance" %}</p>
         </div>
     </div>
 </div>
 
+<script>
+// Function to check if element is in viewport
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+
+// Function to handle scroll animation
+function handleScrollAnimation() {
+    const features = document.querySelectorAll('.feature-card');
+    features.forEach(feature => {
+        if (isInViewport(feature)) {
+            feature.classList.add('animate');
+        }
+    });
+}
+
+// Add scroll event listener
+window.addEventListener('scroll', handleScrollAnimation);
+// Run once on page load
+handleScrollAnimation();
+</script>
+
 <!-- Stats Section with Gradient -->
-<div style = "margin-left: -10px;" class="stats-section">
+<div style="margin-left: -10px;" class="stats-section">
     <div class="stats-grid">
         <div class="stat-item">
             <div class="stat-number">10k+</div>
-            <p class="stat-label">Active Jobs</p>
+            <p class="stat-label">{% trans "Active Jobs" %}</p>
         </div>
         <div class="stat-item">
             <div class="stat-number">5k+</div>
-            <p class="stat-label">Mentors</p>
+            <p class="stat-label">{% trans "Mentors" %}</p>
         </div>
         <div class="stat-item">
             <div class="stat-number">50k+</div>
-            <p class="stat-label">Success Stories</p>
+            <p class="stat-label">{% trans "Success Stories" %}</p>
         </div>
     </div>
 </div>
 
 <!-- Reviews Section -->
 <div class="reviews-section">
-    <h2 class="section-title">What Our Users Say</h2>
+    <h2 class="section-title">{% trans "What Our Users Say" %}</h2>
     <div class="reviews-grid">
-        <div class="review-card">
+        <div class="review-card">               
             <div class="review-header">
-                <img src="{% static 'images/avatar2.svg' %}" alt="User Avatar" class="review-avatar">
+                <img src="{% static 'images/avatar2.svg' %}" alt="{% trans 'User Avatar' %}" class="review-avatar">
                 <div class="review-meta">
-                    <h3>Shreya Sarangi</h3>
+                    <h3>{% trans "Shreya Sarangi" %}</h3>
                 </div>
             </div>
-            <p class="review-text">"PathFinder helped me land my dream job! The mentorship program was invaluable in preparing for technical interviews."</p>
+            <p class="review-text">{% trans '"PathFinder helped me land my dream job! The mentorship program was invaluable in preparing for technical interviews."' %}</p>
         </div>
 
         <div class="review-card">
             <div class="review-header">
-                <img src="{% static 'images/avatar1.svg' %}" alt="User Avatar" class="review-avatar">
+                <img src="{% static 'images/avatar1.svg' %}" alt="{% trans 'User Avatar' %}" class="review-avatar">
                 <div class="review-meta">
-                    <h3>Sohum Krishna</h3>
+                    <h3>{% trans "Sohum Krishna" %}</h3>
                 </div>
             </div>
-            <p class="review-text">"The personalized job recommendations were spot-on. Found and applied to relevant positions with just a few clicks."</p>
+            <p class="review-text">{% trans '"The personalized job recommendations were spot-on. Found and applied to relevant positions with just a few clicks."' %}</p>
         </div>
 
         <div class="review-card">
             <div class="review-header">
-                <img src="{% static 'images/avatar3.svg' %}" alt="User Avatar" class="review-avatar">
+                <img src="{% static 'images/avatar3.svg' %}" alt="{% trans 'User Avatar' %}" class="review-avatar">
                 <div class="review-meta">
-                    <h3>Ethan Tao</h3>
+                    <h3>{% trans "Ethan Tao" %}</h3>
                 </div>
             </div>
-            <p class="review-text">"The career guidance and resources here are exceptional. Made my transition into product management seamless."</p>
+            <p class="review-text">{% trans '"The career guidance and resources here are exceptional. Made my transition into product management seamless."' %}</p>
         </div>
     </div>
 </div>
@@ -396,6 +507,36 @@
     window.addEventListener('scroll', handleScrollAnimation);
     // Run once on page load
     handleScrollAnimation();
+</script>
+
+<!-- Parallax Scroll JS -->
+<script>
+    window.addEventListener('scroll', function() {
+        // const parallaxBg = document.querySelector('.parallax-bg-layer'); // Line to be removed/commented
+        const parallaxGraphics = document.querySelectorAll('.parallax-decorative-graphics .graphic-shape');
+        let scrollPosition = window.pageYOffset;
+
+        /* 
+        // This block will be removed/commented
+        if (parallaxBg) {
+            // Move background layer slower for parallax
+            parallaxBg.style.transform = 'translateY(' + scrollPosition * 0.3 + 'px)';
+        }
+        */
+
+        // Animate decorative graphics with a slightly different parallax effect
+        parallaxGraphics.forEach((graphic, index) => {
+            let speed = 0.1 + (index * 0.05); // Different speeds for each graphic
+            // Keep their scroll-based animation if desired, or simplify to CSS only animation
+            graphic.style.transform = 'translateY(' + scrollPosition * speed + 'px) rotate(' + scrollPosition * (0.1 * (index + 1)) + 'deg)';
+        });
+    });
+</script>
+
+<script>
+document.getElementById('arts-section').addEventListener('click', function() {
+    window.location.href = "{% url 'view-listings' %}?field=Arts";
+});
 </script>
 {% endif %}
 

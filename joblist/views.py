@@ -12,8 +12,14 @@ from datetime import datetime
 from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from google import genai
+from django.utils.safestring import mark_safe
+import markdown
+from django.views.decorators.http import require_http_methods
+from bs4 import BeautifulSoup
 
 
+client = genai.Client(api_key="AIzaSyCYq6LwXQcLhqv50VtvBoU588j1gioakK8")
 
 
 import json
@@ -86,7 +92,7 @@ def home(request):
                     ).count()
                     mentee_progress[mentee.email] = completed_meetings
                 context['mentee_progress'] = mentee_progress
-    
+                
     return render(request, 'joblist/home.html', context)
 @login_required   
 def listings(request):
@@ -217,12 +223,24 @@ def updatestatus(request, app_id):
             application.save()
             if status == "accepted":
                 send_mail(
-                "Job Application Accepted",
-                "You're application to" + application.job.job_title + " has been accepted.",
-                "123.varunagarwal@gmail.com",
-                [application.email],
-                fail_silently=False,
-                )
+                    subject = 'Congratulations, your mentor request has been approved!',
+                    message = '''Hi ''' + application.first_name + ''',
+
+        Congratulations! You've been accepted for the position at ''' + application.job.company_name + '''.
+
+        The employer was impressed with your application and is excited to have you on board. They will be reaching out to you soon with more details about the next steps, including onboarding and your start date.
+
+        In the meantime, feel free to prepare any documents or questions you might have for your new role.
+
+        We’re proud of you—this is a big step forward!
+
+        Best of luck,  
+        The PathFinder Team
+        ''',
+                    from_email = 'pathfinderrequest@gmail.com',
+                    recipient_list = [application.email,],
+                    fail_silently = False,
+    )
             return JsonResponse({'success': True})
         except JobApply.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Application Not Found'}, )
@@ -322,8 +340,26 @@ def accept_student(request, student_id, status):
     student.status_mentor = status
     if status == "reject":
         student.mentor = None
+    else:
+        send_mail(
+            subject = 'Congratulations, your mentor request has been approved!',
+            message = '''Hi''' + student.first_name + ''',
+
+Great news! Your request to be mentored by ''' + student.mentor.first_name + ''' has been approved.
+
+You can now connect with your mentor and start collaborating on your career journey. Feel free to reach out, ask questions, and make the most of this opportunity!
+
+If you have any questions or need support, we're here to help.
+
+Best regards,  
+The PathFinder Team''',
+            from_email = 'pathfinderrequest@gmail.com',
+            recipient_list = [student.email,],
+            fail_silently = False,
+    )
     print(status)
     student.save()
+    
     return JsonResponse({'success': True})
 
 class CalendarView(LoginRequiredMixin, TemplateView):
@@ -494,3 +530,28 @@ def edit_profile(request):
     }, status=405)
 def sources(request):
     return render(request, "joblist/sources.html")
+
+
+@require_http_methods(["GET", "POST"])
+def chatbot(request):
+    # Get the chat history from the session, or initialize an empty list
+    chat_history = request.session.get('chat_history', [])
+
+    if request.method == "POST":
+        user_input = request.POST.get("user_input")
+        response = client.models.generate_content(
+            model="gemini-2.0-flash", contents=user_input)       
+        response_text = mark_safe(markdown.markdown(response.text))
+        response_text = BeautifulSoup(response_text).get_text()
+        # Append new messages to the chat history
+        chat_history.append({"type": "user", "content": user_input})
+        chat_history.append({"type": "ai", "content": response_text})
+        
+        # Save the updated chat history to the session
+        request.session['chat_history'] = chat_history
+        
+        # Check if this is an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({"response": response_text})
+    
+    return render(request, "joblist/chat.html", {"chat_history": chat_history})
