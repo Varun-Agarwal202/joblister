@@ -17,7 +17,7 @@
   {% endif %}
 <script>
     function deleteapp(app_id) {
-        fetch(`/deleteListing/${app_id}/`, {
+        fetch("{% url 'delete-listing' 0 %}".replace("0", app_id), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
