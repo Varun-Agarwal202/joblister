@@ -34,6 +34,7 @@
   {% if user.is_superuser %}
 
         <ul class = "navbar-nav">
+          
           <li class = "nav-item"><a id = "read-page" class = "nav-link" onclick="readPage()"> Read Page</a></li>
           <li class = "nav-item"><a class = "nav-link" href = "/">Home</a></li>
           <li class = "nav-item"><a class = "nav-link" href = "/approvelistings">View Pending Job Listings</a></li>
@@ -77,11 +78,13 @@
     </button>
     <div class="content">
       <a href="{% url 'view-profile' %}">Profile</a>
+      <a href="{% url 'help' %}">Help</a>
       <a href="{%url 'account_reset_password' %}">Reset Password</a>
       <a href="{% url 'account_logout' %}">Log out</a>
     </div>
   </div>
 {% else %}
+<a class="nav-link" href="{% url 'help' %}">{% trans "Help" %}</a>
 <a id = "read-page" class = "nav-link" onclick="readPage()">{% trans "Read Page" %}</a>
 <a class="nav-link" href="{% url 'account_login' %}">{% trans "Log In" %}</a>
 <a class="btn btn-get-started ms-3" style="background-color: #1E3A8A; color: white;" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>

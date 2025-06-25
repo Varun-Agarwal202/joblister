@@ -25,6 +25,8 @@
 
     <!-- Jobs Grid -->
     <div class="jobs-grid">
+        <!-- Debug info -->
+
         {% for job in jobs %}
         <div class="job-card" job-type-data="{{job.jobfield}}">
             <div class="job-card-content" onclick="managesidebar('{{job.location}}', '{{job.job_title}}', '{{job.author}}', '{{job.description}}', '{{job.salary}}', '{{job.company_name}}', '{{job.id}}', '{{job.jobfield}}', '{{job.date_posted}}', '{{job.benefits}}', '{{job.job_requirements}}', '{{job.job_type}}', '{{job.company_info}}', '{{job.notes}}')">
@@ -175,6 +177,7 @@
     // Set the dropdown value based on URL parameter when page loads
     document.addEventListener('DOMContentLoaded', function() {
         const fieldParam = getUrlParameter('field');
+        console.log('HI')
         if (fieldParam) {
             const dropdown = document.getElementById('job-type-dropdown');
             dropdown.value = fieldParam;

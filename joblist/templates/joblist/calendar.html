@@ -50,6 +50,8 @@
 </div>
 
 <script>
+console.log("Calendar script loaded at all");
+
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -66,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('eventEnd').value = info.endStr;
             modal.show();
         },
-        events: '/api/events/'
+        events: '{% url 'event-api' %}'
     });
     calendar.render();
 
@@ -79,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const limit = document.getElementById('eventLimit').value;
         const private = document.getElementById('eventPrivate').checked;
 
-        fetch('/api/events/', {
+        fetch('{% url 'event-api' %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -99,6 +101,10 @@ document.addEventListener('DOMContentLoaded', function() {
             calendar.addEvent(data);
             bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
             document.getElementById('eventForm').reset();
+        })
+        .catch(error => {
+            console.error('Error saving event:', error);
+            alert('Failed to save event. Please check the console for details.');
         });
     });
 });
@@ -150,6 +156,8 @@ function getCookie(name) {
 </div>
 
 <script>
+console.log("JS is running");
+
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -198,14 +206,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 info.el.style.cursor = 'not-allowed';
             }
         },
-        events: '/api/events/'
+        events: '{% url 'event-api' %}'
     });
     calendar.render();
 
     // Add event listener for cancel button
     document.getElementById('cancelMeeting').addEventListener('click', function() {
         const event_id = document.getElementById('meetingID').textContent;
-        fetch('/api/events/', {
+        fetch('{% url 'event-api' %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -227,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Existing join meeting event listener
     document.getElementById('joinMeeting').addEventListener('click', function() {
         const event_id = document.getElementById('meetingID').textContent;
-        fetch('/api/events/', {
+        fetch('{% url 'event-api' %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

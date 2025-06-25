@@ -17,6 +17,8 @@ from django.utils.safestring import mark_safe
 import markdown
 from django.views.decorators.http import require_http_methods
 from bs4 import BeautifulSoup
+from django.views.decorators.csrf import csrf_exempt
+import logging
 
 
 client = genai.Client(api_key="AIzaSyCYq6LwXQcLhqv50VtvBoU588j1gioakK8")
@@ -96,16 +98,10 @@ def home(request):
     return render(request, 'joblist/home.html', context)
 @login_required   
 def listings(request):
-    jobs2 = []
     jobs = JobListing.objects.filter(status = "approve")
-    for job in jobs:
-        try:
-            if (JobApply.objects.filter(job = job )).first().status != "accepted":
-                jobs2.append(job)
-        except:
-            jobs2.append(job)
+
     jobtypechoices = ( ("Arts", "Arts"), ("Business", "Business"), ("Communications", "Communications"), ("Education", "Education"), ("Healthcare", "Healthcare"), ("Hospitality", "Hospitality"), ("Information Technology", "Information Technology"), ("Law Enforcement", "Law Enforcement"), ("Sales and Marketing", "Sales and Marketing"), ("Science", "Science"), ("Transportation", "Transportation"), ("Other", "Other" ))
-    return render(request, 'joblist/view-listings.html', {"jobs": jobs2, "displayform": False, "jobtypechoices": jobtypechoices})
+    return render(request, 'joblist/view-listings.html', {"jobs": jobs, "displayform": False, "jobtypechoices": jobtypechoices})
 @login_required   
 
 def profile(request):
@@ -212,48 +208,88 @@ def view_applications(request):
         apps[job.id] = app
     print(apps)
     return render(request, 'joblist/view-applications.html', {"jobs":jobs, "apps":apps, 'MEDIA_URL': settings.MEDIA_URL,})   
-@csrf_exempt
+# @csrf_exempt
 def updatestatus(request, app_id):
+    print(f"updatestatus called with app_id: {app_id}")
+    print(f"Request method: {request.method}")
+    print(f"Request body: {request.body}")
+    print(f"Request POST: {request.POST}")
+    print(f"Request GET: {request.GET}")
+    print(f"Request headers: {request.headers}")
+    
+    # Temporarily allow GET for testing
+    if request.method == "GET":
+        return JsonResponse({'success': False, 'error': 'GET request received - this is expected for testing'})
+    
     if request.method == "POST":
         try: 
-            data = json.loads(request.body)
-            status = data.get('status')
+            # Try to get data from JSON first, then from POST
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+                status = data.get('status')
+            else:
+                # Handle form data
+                status = request.POST.get('status')
+            
+            print(f"Status: {status}")
+            
             application = JobApply.objects.get(id = app_id)
+            print(f"Found application: {application.first_name} {application.last_name}")
+            print(f"Current status: {application.status}")
+            
             application.status = status
             application.save()
+            print(f"Status updated to: {application.status}")
+            
             if status == "accepted":
-                send_mail(
-                    subject = 'Congratulations, your mentor request has been approved!',
-                    message = '''Hi ''' + application.first_name + ''',
+                try:
+                    send_mail(
+                        subject = 'Congratulations, your job application has been accepted!',
+                        message = f'''Hi {application.first_name},
 
-        Congratulations! You've been accepted for the position at ''' + application.job.company_name + '''.
+Congratulations! You've been accepted for the position at {application.job.company_name}.
 
-        The employer was impressed with your application and is excited to have you on board. They will be reaching out to you soon with more details about the next steps, including onboarding and your start date.
+The employer was impressed with your application and is excited to have you on board. They will be reaching out to you soon with more details about the next steps, including onboarding and your start date.
 
-        In the meantime, feel free to prepare any documents or questions you might have for your new role.
+In the meantime, feel free to prepare any documents or questions you might have for your new role.
 
-        We’re proud of you—this is a big step forward!
+We're proud of you—this is a big step forward!
 
-        Best of luck,  
-        The PathFinder Team
-        ''',
-                    from_email = 'pathfinderrequest@gmail.com',
-                    recipient_list = [application.email,],
-                    fail_silently = False,
-    )
+Best of luck,  
+The PathFinder Team''',
+                        from_email = 'pathfinderrequest@gmail.com',
+                        recipient_list = [application.email,],
+                        fail_silently = True,  # Changed to True to prevent email errors from breaking the function
+                    )
+                    print("Email sent successfully")
+                except Exception as email_error:
+                    print(f"Email sending failed: {email_error}")
+                    # Continue even if email fails
+                    
+            print("Returning success response")
             return JsonResponse({'success': True})
         except JobApply.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Application Not Found'}, )
+            print(f"JobApply with id {app_id} not found")
+            return JsonResponse({'success': False, 'error': 'Application Not Found'})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, )
+            print(f"Error in updatestatus: {e}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        print(f"Invalid request method: {request.method}")
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 @csrf_exempt
 def deleteapp(request, app_id):
     JobApply.objects.filter(pk = app_id).delete()
     return redirect('/')
+@login_required
 def mentorapply(request):
-     if request.method == "POST":
+    logging.basicConfig(level=logging.INFO)
+    logging.info(f"Request method: {request.method}")
+    if request.method == "POST":
         form = mentorApply(request.POST)
+        logging.info(f"Form is valid: {form.is_valid()}")
         if form.is_valid():
             application = form.save(commit = False)
             application.author = request.user
@@ -261,43 +297,66 @@ def mentorapply(request):
             messages.success(request, "Mentor request pending")
             application.save()
             return redirect('/')
-     print("Hi3")
-     form = mentorApply()
-     return render(request, "joblist/mentorapply.html", {"form": form})
+        else:
+            logging.error(f"Form errors: {form.errors.as_json()}")
+            # If form is invalid, show errors
+            return render(request, "joblist/mentorapply.html", {"form": form})
+    else:
+        form = mentorApply()
+    return render(request, "joblist/mentorapply.html", {"form": form})
 def approvejob(request):
     jobs = JobListing.objects.filter(status = "pending")
     return render(request, "joblist/approvejob.html", {"jobs": jobs})
 def approvementor(request):
     applications = applicationMentor.objects.filter(status = "pending")
     return render(request, "joblist/approvepending.html", {"jobs": applications})
+
+@csrf_exempt  # TEMPORARY: Remove this after debugging if you want CSRF protection!
 def updatejobstatus(request, job_id):
-    if request.method == "POST":
-        try: 
-            data = json.loads(request.body)
-            status = data.get('status')
-            application = JobListing.objects.get(id = job_id)
-            application.status = status
-            application.save()
+    print("Request method:", request.method)
+    print("Request headers:", request.headers)
+    print("Request body:", request.body)
+    print("Request POST:", request.POST)
+    try:
+        if request.method == "POST":
+            import json
+            try:
+                data = json.loads(request.body)
+                status = data.get('status')
+            except Exception:
+                status = request.POST.get('status')
+            print("Status to set:", status)
+            job = JobListing.objects.get(id=job_id)
+            job.status = status
+            job.save()
             return JsonResponse({'success': True})
-        except JobApply.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Application Not Found'}, )
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, )
-    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+    except Exception as e:
+        print("Error:", e)
+        return JsonResponse({'success': False, 'error': str(e)})
+@csrf_exempt
 def updatementorstatus(request, job_id):
-    if request.method == "POST":
-        try: 
+    print("Request method (updatementorstatus):", request.method)
+    print("Request body (updatementorstatus):", request.body)
+    print("Request POST (updatementorstatus):", request.POST)
+    try:
+        if request.method == "POST":
             data = json.loads(request.body)
             status = data.get('status')
+            print("Status to set (updatementorstatus):", status)
             application = applicationMentor.objects.get(id = job_id)
             application.status = status
             application.save()
             return JsonResponse({'success': True})
-        except JobApply.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Application Not Found'}, )
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, )
-    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+    except applicationMentor.DoesNotExist:
+        print(f"applicationMentor with id {job_id} not found")
+        return JsonResponse({'success': False, 'error' : 'Application Not Found'}, status=404)
+    except Exception as e:
+        print("Error in updatementorstatus:", e)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 def managelistings(request):
     jobs = JobListing.objects.filter(author = request.user)
     return render(request, "joblist/manage-listings.html", {"jobs": jobs})
@@ -408,7 +467,9 @@ def event_api(request):
         } for event in events], safe=False)
     
     elif request.method == "POST":
+        print(f"Event API POST request received. User role: {request.user.role}")
         data = json.loads(request.body)
+        print(f"Event API received data: {data}")
         if request.user.role == "Student":
             event = MeetingEvent.objects.get(id=data['event_id'])
             
@@ -416,23 +477,30 @@ def event_api(request):
                 event.attendees.remove(request.user)
                 event.current_people -= 1
                 event.save()
+                print("Student cancelled meeting.")
                 return JsonResponse({'success': True})
             elif data.get('action') == 'join':
                 event.attendees.add(request.user)
                 event.current_people += 1
                 event.save()
+                print("Student joined meeting.")
                 return JsonResponse({'success': True})
                 
-        else:
-            event = MeetingEvent.objects.create(
-                mentor=request.user,
-                title=data['title'],
-                start=datetime.fromisoformat(data['start'].replace('Z', '+00:00')),
-                end=datetime.fromisoformat(data['end'].replace('Z', '+00:00')),
-                description=data['description'],
-                limit_people=data['limit_people'],
-                private=data['private']
-            )
+        else: # This block is for mentors creating events
+            try:
+                event = MeetingEvent.objects.create(
+                    mentor=request.user,
+                    title=data['title'],
+                    start=datetime.fromisoformat(data['start'].replace('Z', '+00:00')),
+                    end=datetime.fromisoformat(data['end'].replace('Z', '+00:00')),
+                    description=data['description'],
+                    limit_people=data['limit_people'],
+                    private=data['private']
+                )
+                print(f"New meeting event created by mentor: {event.title} (ID: {event.id})")
+            except Exception as e:
+                print(f"Error creating meeting event: {e}")
+                return JsonResponse({'success': False, 'error': str(e)}, status=400)
             
         return JsonResponse({
             'event_id': event.id,
@@ -555,3 +623,107 @@ def chatbot(request):
             return JsonResponse({"response": response_text})
     
     return render(request, "joblist/chat.html", {"chat_history": chat_history})
+def help(request):
+    return render(request, "joblist/help.html")
+
+def accept_application(request, app_id):
+    try:
+        application = JobApply.objects.get(id=app_id)
+        application.status = "accepted"
+        application.save()
+        
+        # Send email
+        try:
+            send_mail(
+                subject = 'Congratulations, your job application has been accepted!',
+                message = f'''Hi {application.first_name},
+
+Congratulations! You've been accepted for the position at {application.job.company_name}.
+
+The employer was impressed with your application and is excited to have you on board. They will be reaching out to you soon with more details about the next steps, including onboarding and your start date.
+
+In the meantime, feel free to prepare any documents or questions you might have for your new role.
+
+We're proud of you—this is a big step forward!
+
+Best of luck,  
+The PathFinder Team''',
+                from_email = 'pathfinderrequest@gmail.com',
+                recipient_list = [application.email,],
+                fail_silently = True,
+            )
+        except Exception as email_error:
+            print(f"Email sending failed: {email_error}")
+        
+        messages.success(request, f"Application for {application.first_name} {application.last_name} has been accepted!")
+    except JobApply.DoesNotExist:
+        messages.error(request, "Application not found!")
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('view-applications')
+
+def reject_application(request, app_id):
+    try:
+        application = JobApply.objects.get(id=app_id)
+        application.status = "rejected"
+        application.save()
+        messages.success(request, f"Application for {application.first_name} {application.last_name} has been rejected!")
+    except JobApply.DoesNotExist:
+        messages.error(request, "Application not found!")
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('view-applications')
+
+def approve_job(request, job_id):
+    try:
+        job = JobListing.objects.get(id=job_id)
+        job.status = "approve"
+        job.save()
+        messages.success(request, f"Job listing '{job.job_title}' has been approved!")
+    except JobListing.DoesNotExist:
+        messages.error(request, "Job listing not found!")
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('approve-job')
+
+def reject_job(request, job_id):
+    try:
+        job = JobListing.objects.get(id=job_id)
+        job.status = "reject"
+        job.save()
+        messages.success(request, f"Job listing '{job.job_title}' has been rejected!")
+    except JobListing.DoesNotExist:
+        messages.error(request, "Job listing not found!")
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('approve-job')
+
+def approve_mentor(request, mentor_id):
+    try:
+        application = applicationMentor.objects.get(id=mentor_id)
+        application.status = "approve"
+        application.save()
+        messages.success(request, f"Mentor application for {application.first_name} {application.last_name} has been approved!")
+    except applicationMentor.DoesNotExist:
+        messages.error(request, "Mentor application not found!")
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('approve-mentor')
+
+def reject_mentor(request, mentor_id):
+    try:
+        application = applicationMentor.objects.get(id=mentor_id)
+        application.status = "reject"
+        application.save()
+        messages.success(request, f"Mentor application for {application.first_name} {application.last_name} has been rejected!")
+    except applicationMentor.DoesNotExist:
+        messages.error(request, "Mentor application not found!")
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('approve-mentor')

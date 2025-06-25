@@ -1,6 +1,9 @@
 {% extends "joblist/base.html" %}
 
 {% block content %}
+<!-- CSRF Token -->
+{% csrf_token %}
+
 <div class="applications-container">
     <div class="applications-header">
         <h1>Applications Dashboard</h1>
@@ -85,12 +88,12 @@
             </div>
 
             <div class="action-buttons">
-                <button onclick="updtateAppStatus('accepted')" id="accept-button" class="action-btn accept">
+                <a href="#" class="action-btn accept" style="display: none;" onclick="return confirm('Accept this application?')">
                     <i class="fas fa-check"></i> Accept
-                </button>
-                <button onclick="updtateAppStatus('rejected')" id="reject-button" class="action-btn reject">
+                </a>
+                <a href="#" class="action-btn reject" style="display: none;" onclick="return confirm('Reject this application?')">
                     <i class="fas fa-times"></i> Reject
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -111,8 +114,15 @@
         document.getElementById('education_level').querySelector('span').innerText = education_level;
         document.getElementById('previousjobs').querySelector('span').innerText = previous_jobs;
         
-        document.getElementById("reject-button").removeAttribute("hidden");
-        document.getElementById("accept-button").removeAttribute("hidden");
+        // Update action buttons with correct application ID
+        const acceptBtn = document.querySelector('.action-btn.accept');
+        const rejectBtn = document.querySelector('.action-btn.reject');
+        acceptBtn.href = `/acceptApp/${appId}/`;
+        rejectBtn.href = `/rejectApp/${appId}/`;
+        
+        // Show the buttons
+        acceptBtn.style.display = 'inline-block';
+        rejectBtn.style.display = 'inline-block';
         
         const resumeLink = document.getElementById('resume');
         resumeLink.setAttribute("href", `/media/${resume}`);
@@ -147,24 +157,46 @@
         }
     }
 
-    function updtateAppStatus(status) {
-        fetch(`/updateAppStatus/${currentAppId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ status: status })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Application status updated successfully');
-            } else {
-                alert('Failed to update application');
-            }
-            location.reload();
-        });
+    function updateAppStatus(status) {
+        console.log('updateAppStatus called with status:', status);
+        console.log('currentAppId:', currentAppId);
+        
+        if (!currentAppId) {
+            alert('No application selected');
+            return;
+        }
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        console.log('CSRF Token:', csrfToken);
+        
+        // Create a simple form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/updateAppStatus/${currentAppId}/`;
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        // Add status
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        statusInput.value = status;
+        form.appendChild(statusInput);
+        
+        console.log('Form created:', form);
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
+        
+        // Add form to page and submit
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 {% endblock %}

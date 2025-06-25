@@ -143,6 +143,8 @@
 </div>
 </div>
 <script>
+    // Add this at the top of the script to get the correct URL from Django
+    const jobOfferUrl = "{% url 'job-offer' %}";
     function moreinfo(fname, lname, gender, birthdate, phone, email, address, education_level, previousjobs, resume, id, author) {
         popupOverlay.style.display = 'block';
         document.getElementById("popup-title").innerText = fname + ' ' + lname;
@@ -164,7 +166,7 @@
     function offer() {
         console.log("here?")
         var student_id = document.getElementById('popup-id').innerText;
-        fetch(`/jobOffer/`, {
+        fetch(jobOfferUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

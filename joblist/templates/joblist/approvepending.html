@@ -67,8 +67,8 @@
         <p><strong>Field Of Study:</strong></p>
         <p id="popup-fos"></p>
         </div>
-        <button class = "popup-approved" onclick = "updateStatus('approve')">Approve</button>
-        <button class = "popup-approved" onclick = "updateStatus('reject')">Reject</button>
+        <button class = "popup-approved" id="approve-mentor-link">Approve</button>
+        <button class = "popup-approved" id="reject-mentor-link">Reject</button>
     </div>
 </div>
 </div>
@@ -89,26 +89,19 @@
         document.getElementById("popup-essay").innerText = essay;
         document.getElementById("popup-fos").innerText = fos;
 
+        // Update the approve/reject links with the correct mentor ID
+        document.getElementById("approve-mentor-link").onclick = function() {
+            window.location.href = `/approveMentor/${id}/`;
+        };
+        document.getElementById("reject-mentor-link").onclick = function() {
+            window.location.href = `/rejectMentor/${id}/`;
+        };
 
     }
     function closePopup() {
         popupOverlay.style.display = 'none';
     }
-    function updateStatus(status) {
-        id = document.getElementById("popup-id").innerText
-        fetch(`/updateMentorStatus/${id}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-                },
-            body: JSON.stringify({ status: status })
-        } )
-        .then(response => response.json())
-        .then(data => {
-            location.reload()
-        })
-    }
+    
     window.onclick = function(event) {
         const popupOverlay = document.getElementById("popupOverlay");
         if (event.target == popupOverlay) {
